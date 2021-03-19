@@ -1,18 +1,43 @@
 const request = require("supertest");
 const app = require("../app");
 const jwt = require("jsonwebtoken");
+const { Organizer, Event, Recipient } = require("../models");
 
 let tokenUser = "";
+let organizeData;
+let eventData;
 
 beforeAll(() => {
   let user = {
     id: 1,
-    organization: "Certify",
+    name: "Certify",
     email: "admin@mail.com",
     password: "123456",
   };
 
   tokenUser = jwt.sign(user, "certify");
+
+  Organizer.create(user)
+    .then((response) => {
+      organizerName = response;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+afterAll(() => {
+  Organizer.destroy({ truncate: true })
+    .then((response) => {})
+    .catch((response) => {});
+
+  Event.destroy({ truncate: true })
+    .then((response) => {})
+    .catch((response) => {});
+
+  Recipient.destroy({ truncate: true })
+    .then((response) => {})
+    .catch((response) => {});
 });
 
 describe("POST /events/:organizerId", () => {
@@ -21,10 +46,9 @@ describe("POST /events/:organizerId", () => {
       event: "SEMINAR NGODING SE JAWA",
       date: "07/14/2021",
       type: "Seminar",
-      organizerId: 1,
     };
     request(app)
-      .post("/events/1")
+      .post(`/events/${organizeData.id}`)
       .send(body)
       .set("access_token", tokenUser)
       .end((err, res) => {
@@ -47,7 +71,7 @@ describe("POST /events/:organizerId", () => {
     };
 
     request(app)
-      .post("/events/1")
+      .post(`/events/${organizeData.id}`)
       .send(body)
       .set("access_token", tokenUser)
       .end((err, res) => {
@@ -68,7 +92,7 @@ describe("POST /events/:organizerId", () => {
       organizerId: 1,
     };
     request(app)
-      .post("/events/1")
+      .post(`/events/${organizeData.id}`)
       .send(body)
       .end((err, res) => {
         if (err) {
@@ -82,54 +106,10 @@ describe("POST /events/:organizerId", () => {
   });
 });
 
-describe("GET /:organizerName Table", function () {
-  it("should return status 200 with data of organizer", function (done) {
-    request(app)
-      .get("/Certify")
-      .set("access_token", tokenUser)
-      .end((err, res) => {
-        if (err) {
-          done(err);
-        }
-        expect(res.status).toEqual(200);
-        expect(typeof res.body).toEqual("object");
-        expect(res.body).toHaveProperty("organizer");
-        expect(typeof res.body.organizer.Events).toEqual("object");
-        expect(Array.isArray(res.body.organizer)).toEqual(true);
-        done();
-      });
-  });
-
-  it("should return status 404 with error message", function (done) {
-    request(app)
-      .get("/Certify")
-      .set("access_token", tokenUser)
-      .end((err, res) => {
-        if (err) {
-          done(err);
-        }
-        expect(res.status).toEqual(404);
-        expect(res.body).toHaveProperty("message");
-        done();
-      });
-  });
-
-  it("should return status 401 with error message (no access token)", function (done) {
-    request(app)
-      .get("/Certify")
-      .end((err, res) => {
-        if (err) {
-          done(err);
-        }
-        expect(res.status).toEqual(401);
-        expect(res.body).toHaveProperty("message");
-        done();
-      });
-  });
-
+describe("GET /:organizerName/:eventId Table", function () {
   it("should return status 200 with data of event", function (done) {
     request(app)
-      .get("/Certify/1")
+      .get(`/${organizeData.name}/1`)
       .set("access_token", tokenUser)
       .end((err, res) => {
         if (err) {
@@ -145,7 +125,7 @@ describe("GET /:organizerName Table", function () {
 
   it("should return status 404 with error message", function (done) {
     request(app)
-      .get("/Certify/1")
+      .get(`/${organizeData.name}/1`)
       .set("access_token", tokenUser)
       .end((err, res) => {
         if (err) {
@@ -159,7 +139,7 @@ describe("GET /:organizerName Table", function () {
 
   it("should return status 401 with error message (no access token)", function (done) {
     request(app)
-      .get("/Certify/1")
+      .get(`/${organizeData.name}/1`)
       .end((err, res) => {
         if (err) {
           done(err);
@@ -177,7 +157,6 @@ describe("PUT /events/eventId", () => {
       event: "SEMINAR NGODING SE LOMBOK",
       date: "07/14/2021",
       type: "Seminar",
-      organizerId: 1,
     };
 
     request(app)

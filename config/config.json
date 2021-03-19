@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "postgres",
-    "password": "rahasia",
+    "password": "neupostgres",
     "database": "certify_database_development",
     "host": "localhost",
     "dialect": "postgres"
@@ -11,7 +11,7 @@
     "password": "rahasia",
     "database": "certify_database_test",
     "host": "localhost",
-    "dialect": "postgres"
+    "dialect": "neupostgres"
   },
   "production": {
     "use_env_variable": "DATABASE_URL",
