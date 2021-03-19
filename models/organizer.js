@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+const { hash } = require("../helpers/bcrypt");
 module.exports = (sequelize, DataTypes) => {
   class Organizer extends Model {
     /**
@@ -14,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Organizer.init(
     {
-      organization: {
+      name: {
         type: DataTypes.STRING,
         validate: {
           notEmpty: {
@@ -50,6 +51,11 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Organizer",
+      hooks: {
+        beforeCreate: (organizer, option) => {
+          organizer.password = hash(organizer.password)
+        }
+      }
     }
   );
   return Organizer;
