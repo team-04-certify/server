@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test npx jest",
-    "dev": "NODE_ENV=development nodemon app.js"
+    "dev": "NODE_ENV=development nodemon ./bin/http.js"
   },
   "repository": {
     "type": "git",

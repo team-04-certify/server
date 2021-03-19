@@ -1,6 +1,10 @@
-const router = require('express').Router()
-const Controller = require('../controller/controller')
+const router = require("express").Router();
+const EventRouter = require("./EventRouter");
+const RecipientRouter = require("./RecipientRouter");
+const OrganizerRouter = require("./OrganizerRouter");
 
-router.get('/', Controller.home)
+router.use(EventRouter);
+router.use(RecipientRouter);
+router.use(OrganizerRouter);
 
-module.exports = router
+module.exports = router;
