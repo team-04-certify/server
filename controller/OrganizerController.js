@@ -34,7 +34,6 @@ class OrganizerController {
         const checkPass = compare(password, organizerData.password)
         if(!checkPass) throw {name:'invalid email or password', message: 'invalid email or password'}
         const access_token = createToken({
-          id: organizerData.id,
           name: organizerData.name,
           email: organizerData.email
         })
@@ -47,6 +46,7 @@ class OrganizerController {
       })
   }
   static home(req, res, next) {
+    console.log(req.organizer)
     const { organizerName } = req.params
     Organizer.findOne({
       where: {

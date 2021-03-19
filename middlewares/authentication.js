@@ -1,8 +1,9 @@
-const {verify} = require('../helpers/jwt')
-const {User} = require('../models')
+const { verify } = require('../helpers/jwt')
+const {Organizer} = require('../models')
 
 module.exports = async (req, res, next) => {
   const access_token = req.headers.access_token
+
   if(!access_token) {
     return next({
       name: 'jwt is required',
@@ -11,6 +12,7 @@ module.exports = async (req, res, next) => {
   }
   try {
     const payload =  verify(access_token)
+    console.log(payload)
     if(!payload) {
       return next({
         name: 'jwt is required',
@@ -18,15 +20,19 @@ module.exports = async (req, res, next) => {
       })
     }
 
-    const user = await User.findByPk(payload.id)
-    if(!user) {
+    const organizer = await Organizer.findOne({
+      where: {
+        name: payload.name
+      }
+    })
+    if(!organizer) {
       return next({
         name: 'invalid jwt',
         message: 'invalid jwt'
       })
     }
 
-    req.user = payload
+    req.organizer = payload
     next()
   }
   catch (err) {

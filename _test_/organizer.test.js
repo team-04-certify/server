@@ -1,7 +1,7 @@
 const request = require('supertest')
 const app = require('../app')
-const jwt = require('jsonwebtoken')
 const {Organizer, Event, Recipient} = require("../models")
+const jwt = require('jsonwebtoken')
 
 let access_token = ''
 let organizerName = ''
@@ -11,7 +11,7 @@ beforeEach(() => {
     email: 'admin@mail.com',
     password: '123456'
   }
-  access_token = jwt.sign(organizerData, 'Sertify');
+  access_token =  jwt.sign({name: organizerData.name, email: organizerData.email}, 'certifyjayaaaselole123123');
   Organizer.create(organizerData)
     .then(response => {
       organizerName = response.name
@@ -266,6 +266,7 @@ describe('GET /:organizername', function() {
   it('should return status 200', function(done) {
     request(app)
       .get(`/${organizerName}`)
+      .set('access_token', access_token)
       .end((err, res) => {
         if(err) {
           done(err)
