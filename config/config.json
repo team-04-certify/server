@@ -1,14 +1,14 @@
 {
   "development": {
-    "username": "postgres",
-    "password": "neupostgres",
+    "username": "ayudyatriastika",
+    "password": "postgres",
     "database": "certify_database_development",
     "host": "localhost",
     "dialect": "postgres"
   },
   "test": {
-    "username": "postgres",
-    "password": "neupostgres",
+    "username": "ayudyatriastika",
+    "password": "postgres",
     "database": "certify_database_test",
     "host": "localhost",
     "dialect": "postgres"
