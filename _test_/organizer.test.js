@@ -1,19 +1,20 @@
 const request = require('supertest')
 const app = require('../app')
 const jwt = require('jsonwebtoken')
+const {Organizer, Event, Recipient} = require("../models")
 
 let access_token = ''
 let organizerName = ''
 beforeEach(() => {
   const organizerData = {
-    organizer: 'Certify',
+    name: 'Certify',
     email: 'admin@mail.com',
     password: '123456'
   }
   access_token = jwt.sign(organizerData, 'Sertify');
   Organizer.create(organizerData)
     .then(response => {
-      organizerName = response.organizer
+      organizerName = response.name
     })
     .catch(err => {
         console.log(err)
@@ -21,20 +22,24 @@ beforeEach(() => {
 
 })
 afterAll(() => {
-  Organizer.destroy({truncate: true})
-      .then(response => {
+  Organizer.destroy({ truncate: true })
+    .then((response) => {})
+    .catch((response) => {});
 
-      })
-      .catch(response => {
+  Event.destroy({ truncate: true })
+    .then((response) => {})
+    .catch((response) => {});
 
-      })
-})  
+  Recipient.destroy({ truncate: true })
+    .then((response) => {})
+    .catch((response) => {});
+}); 
 
 // ============ register success============
 describe('POST /register', function() {
   it('should return status 201', function(done) {
     let body = {
-      organization: 'Certify Seminar',
+      name: 'Certify Seminar',
       email: 'robi@mail.com',
       password: 'robi123'
     }
@@ -47,19 +52,19 @@ describe('POST /register', function() {
         }
         expect(res.status).toEqual(201)
         expect(typeof(res.body)).toEqual('object')
-        expect(res.body).toHaveProperty('organization')
-        expect(typeof(res.body.organization)).toEqual('string')
+        expect(res.body).toHaveProperty('name')
+        expect(typeof(res.body.name)).toEqual('string')
         expect(res.body).toHaveProperty('email')
         expect(typeof(res.body.email)).toEqual('string')
         done()
       })
   })
 })
-// ============ register error organization unique ============
+// ============ register error name unique ============
 describe('POST /register', function() {
   it('should return status 201', function(done) {
     let body = {
-      organization: 'Certify Seminar',
+      name: 'Certify Seminar',
       email: 'robi@mail.com',
       password: 'robi123'
     }
@@ -70,7 +75,7 @@ describe('POST /register', function() {
         if(err) {
           done(err)
         }
-        expect(res.status).toEqual(201)
+        expect(res.status).toEqual(400)
         expect(Array.isArray(res.body)).toEqual(true)
         expect((res.body[0])).toHaveProperty('message')
         done()
@@ -82,7 +87,7 @@ describe('POST /register', function() {
 describe('POST /register', function() {
   it('should return status 201', function(done) {
     let body = {
-      organization: 'Certify Seminar2',
+      name: 'Certify Seminar2',
       email: 'robi@mail.com',
       password: 'robi123'
     }
@@ -93,7 +98,7 @@ describe('POST /register', function() {
         if(err) {
           done(err)
         }
-        expect(res.status).toEqual(201)
+        expect(res.status).toEqual(400)
         expect(Array.isArray(res.body)).toEqual(true)
         expect((res.body[0])).toHaveProperty('message')
         done()
@@ -105,7 +110,7 @@ describe('POST /register', function() {
 describe('POST /register', function() {
   it('should return status 201', function(done) {
     let body = {
-      organization: 'Seminar',
+      name: 'Seminar',
       email: 'kantorSeminar@gmail.com',
       password: '23'
     }
@@ -116,9 +121,31 @@ describe('POST /register', function() {
         if(err) {
           done(err)
         }
-        expect(res.status).toEqual(201)
+        expect(res.status).toEqual(400)
         expect(Array.isArray(res.body)).toEqual(true)
         expect((res.body[0])).toHaveProperty('message')
+        done()
+      })
+  })
+})
+
+// ============ register error validation password min length 6 characters and empty name and empty email============
+describe('POST /register', function() {
+  it('should return status 201', function(done) {
+    let body = {
+      name: '',
+      email: '',
+      password: '23'
+    }
+    request(app)
+      .post('/register')
+      .send(body)
+      .end((err, res) => {
+        if(err) {
+          done(err)
+        }
+        expect(res.status).toEqual(400)
+        expect(Array.isArray(res.body)).toEqual(true)
         done()
       })
   })
@@ -239,16 +266,14 @@ describe('GET /:organizername', function() {
   it('should return status 200', function(done) {
     request(app)
       .get(`/${organizerName}`)
-      .set('access_token', access_token)
       .end((err, res) => {
         if(err) {
           done(err)
         }
-        curentIdProduct = +res.body.id 
         expect(res.status).toEqual(200)
         expect(typeof(res.body)).toEqual('object')
         expect((res.body)).toHaveProperty('id')
-        expect((res.body)).toHaveProperty('organizer')
+        expect((res.body)).toHaveProperty('name')
         expect((res.body)).toHaveProperty('email')
         expect((res.body)).toHaveProperty('Events')
         done()
