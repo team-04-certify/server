@@ -1,0 +1,25 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "rahasia",
+    "database": "certify_database_development",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgress",
+    "password": "rahasia",
+    "database": "certify_database_test",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
+    "use_env_variable": "DATABASE_URL",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  }
+}
