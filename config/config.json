@@ -8,10 +8,10 @@
   },
   "test": {
     "username": "postgres",
-    "password": "rahasia",
+    "password": "neupostgres",
     "database": "certify_database_test",
     "host": "localhost",
-    "dialect": "neupostgres"
+    "dialect": "postgres"
   },
   "production": {
     "use_env_variable": "DATABASE_URL",
