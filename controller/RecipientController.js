@@ -23,7 +23,7 @@ class RecipientContoller {
 
   static async getRecipient(req, res, next) {
     try {
-      console.log('Masuk recipient');
+
       const certificateNumber = req.params.certificateNumber
       const recipient = await Recipient.findOne({where: {certificateNumber}})
       if(!recipient){
