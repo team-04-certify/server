@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 let access_token = "";
 let organizerName = "";
-beforeEach(() => {
+beforeAll(() => {
   const organizerData = {
     name: "Certify",
     email: "admin@mail.com",
@@ -23,15 +23,15 @@ beforeEach(() => {
       console.log(err);
     });
 });
-afterAll(() => {
-  Organizer.destroy()
-    .then((response) => {
-      return Event.destroy()
-    })
-    .then((response) => {
-      return Recipient.destroy()
-    })
-    .catch((response) => {});
+afterAll(async () => {
+  try{
+    await Organizer.destroy({ truncate: true })
+    await Event.destroy({ truncate: true })
+    await Recipient.destroy({ truncate: true })
+  } catch(err){
+    console.log(err);
+  }
+
 });
 
 // ============ register success============
@@ -275,6 +275,23 @@ describe("GET /:organizername", function () {
         expect(res.body).toHaveProperty("name");
         expect(res.body).toHaveProperty("email");
         expect(res.body).toHaveProperty("Events");
+        done();
+      });
+  });
+});
+// ================== show organization no access token==================
+describe("GET /:organizername", function () {
+  it("should return status 401", function (done) {
+    request(app)
+      .get(`/${organizerName}`)
+      .set("access_token", '')
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        expect(res.status).toEqual(401);
+        expect(res.body).toHaveProperty("message");
+        expect(res.body.message).toEqual('jwt is required');
         done();
       });
   });

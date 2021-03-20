@@ -29,13 +29,12 @@ class EventController {
       });
 
       if (organizer === null) {
-        throw { status: 404, message: "Organizer not found" };
+        throw { name: "CustomError", code: 404, message: "Organizer not found" };
       }
 
-      const event = organizer.Events.filter(
+      const event = await organizer.Events.filter(
         (event) => event.id === Number(eventId)
       );
-
       res.status(200).json({ event });
     } catch (err) {
       console.log(err);
@@ -73,7 +72,10 @@ class EventController {
           date,
           type,
         },
-        { where: { id: +eventId } }
+        {
+          where: { id: +eventId },
+          returning: true
+        }
       );
 
       res.status(200).json({ event: eventData });
@@ -87,9 +89,12 @@ class EventController {
     try {
       const { eventId } = req.params;
 
-      const event = await Event.destroy({ where: { id: +eventId } });
+      const event = await Event.destroy({ where: { id: +eventId }, returning: true });
 
       console.log(event);
+      if(event === 0) {
+        throw { name: "CustomError", code: 404, message: "Event not found" };
+      }
       res.status(200).json({ message: "Event deleted" });
     } catch (err) {
       console.log(err);
