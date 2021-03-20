@@ -306,7 +306,7 @@ describe("Failed test cases CRUD participant", function () {
     });
   });
 
-  describe("PUT /recipient/:eventId", function () {
+  describe("PUT /recipients/:eventId", function () {
     it("should return status 401 when access_token is not provided", function (done) {
       const body = {
         name: "John Doea",
@@ -318,12 +318,37 @@ describe("Failed test cases CRUD participant", function () {
         EventId: eventId,
       };
       request(app)
-        .put(`/recipient/:${eventId}/:${recipientId}`)
+        .put(`/recipients/${eventId}/${recipientId}`)
         .send(body)
         .end((err, res) => {
           if (err) return done(err);
           expect(res.status).toEqual(401);
           expect(res.body).toEqual({"message": "jwt is required"});
+          return done();
+        });
+    });
+    it("should return status 404 when id is not found", function (done) {
+      const body = {
+        name: "John Doeu",
+        email: "recipient@mailu.com",
+        gender: "female",
+        birthdate: "04/30/1990",
+        certificateNumber: "aaa123",
+        role: "attendee",
+        EventId: eventId,
+      };
+      request(app)
+        .put(`/recipients/${eventId}/1000`)
+        .set("access_token", jwtToken)
+        .send(body)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(404);
+          expect(res.body).toEqual({
+            name: "CustomError",
+            code: 404,
+            message: "recipient was not found",
+          });
           return done();
         });
     });
@@ -338,7 +363,7 @@ describe("Failed test cases CRUD participant", function () {
         EventId: eventId,
       };
       request(app)
-        .put(`/recipient/:${eventId}`)
+        .put(`/recipients/${eventId}/${recipientId}`)
         .set('access_token', 'errortest')
         .send(body)
         .end((err, res) => {

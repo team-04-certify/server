@@ -1,22 +1,6 @@
 const { Organizer, Event } = require("../models");
 
 class EventController {
-  static async getOrganizerEvents(req, res, next) {
-    console.log('masuk getorganizer events<<<<<')
-    try {
-      const { organizerName } = req.params;
-
-      const organizer = await Organizer.findOne({
-        where: { name: organizerName },
-        include: Event,
-      });
-
-      res.status(200).json({ organizer });
-    } catch (err) {
-      console.log(err);
-      next(err);
-    }
-  }
 
   static async getOrganizerEvent(req, res, next) {
     console.log('masuk getorganizer event<<<<')
@@ -54,10 +38,8 @@ class EventController {
         type,
         OrganizerId: +organizerId,
       });
-      console.log(eventData)
       res.status(201).json({ event: eventData });
     } catch (err) {
-      console.log(err);
       next(err);
     }
   }
@@ -80,7 +62,6 @@ class EventController {
 
       res.status(200).json({ event: eventData });
     } catch (err) {
-      console.log(err);
       next(err);
     }
   }

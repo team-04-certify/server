@@ -12,13 +12,13 @@ module.exports = async (req, res, next) => {
   }
   try {
     const payload =  verify(access_token)
-    // console.log(payload)
-    if(!payload) {
-      return next({
-        name: 'jwt is required',
-        message: 'jwt is required'
-      })
-    }
+    // // console.log(payload)
+    // if(!payload) {
+    //   return next({
+    //     name: 'jwt is required',
+    //     message: 'jwt is required'
+    //   })
+    // }
 
     const organizer = await Organizer.findOne({
       where: {

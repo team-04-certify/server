@@ -4,7 +4,7 @@
   "description": "server side certify-app",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test npx jest --coverage --watchAll",
+    "test": "NODE_ENV=test npx jest --runInBand --coverage",
     "dev": "NODE_ENV=development nodemon ./bin/http.js"
   },
   "repository": {

@@ -71,8 +71,6 @@ class OrganizerController {
       .catch(err => {
         next(err)
       })
-    // console.log(req.params)
-    // res.send(organizerName)
   }
 }
 
