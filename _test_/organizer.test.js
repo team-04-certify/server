@@ -24,16 +24,13 @@ beforeEach(() => {
     });
 });
 afterAll(() => {
-  Organizer.destroy({ truncate: true })
-    .then((response) => {})
-    .catch((response) => {});
-
-  Event.destroy({ truncate: true })
-    .then((response) => {})
-    .catch((response) => {});
-
-  Recipient.destroy({ truncate: true })
-    .then((response) => {})
+  Organizer.destroy()
+    .then((response) => {
+      return Event.destroy()
+    })
+    .then((response) => {
+      return Recipient.destroy()
+    })
     .catch((response) => {});
 });
 
@@ -133,7 +130,7 @@ describe("POST /register", function () {
 
 // ============ register error validation password min length 6 characters and empty name and empty email============
 describe("POST /register", function () {
-  it("should return status 201", function (done) {
+  it("should return status 400", function (done) {
     let body = {
       name: "",
       email: "",

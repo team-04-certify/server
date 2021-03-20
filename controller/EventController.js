@@ -2,6 +2,7 @@ const { Organizer, Event } = require("../models");
 
 class EventController {
   static async getOrganizerEvents(req, res, next) {
+    console.log('masuk getorganizer events<<<<<')
     try {
       const { organizerName } = req.params;
 
@@ -18,6 +19,7 @@ class EventController {
   }
 
   static async getOrganizerEvent(req, res, next) {
+    console.log('masuk getorganizer event<<<<')
     try {
       const { organizerName, eventId } = req.params;
 
@@ -42,9 +44,10 @@ class EventController {
   }
 
   static async addEvent(req, res, next) {
+    console.log('masuk addEvent')
     try {
       const { organizerId } = req.params;
-      const { title, event, date, type } = req.body;
+      const { title, date, type } = req.body;
 
       const eventData = await Event.create({
         title,
@@ -52,8 +55,8 @@ class EventController {
         type,
         OrganizerId: +organizerId,
       });
-
-      res.status(201).json({ event, eventData });
+      console.log(eventData)
+      res.status(201).json({ event: eventData });
     } catch (err) {
       console.log(err);
       next(err);

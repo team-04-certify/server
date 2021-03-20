@@ -5,6 +5,7 @@ const {Organizer, Event, Recipient} = require("../models");
 
 class OrganizerController {
   static register (req, res, next) {
+    console.log('masuk sini register<<')
     const {name, email, password} = req.body
     Organizer.create({
       name,
@@ -23,6 +24,7 @@ class OrganizerController {
     // res.send('masuk regiter')
   }
   static login (req, res, next) {
+    console.log('masuk login<<<<<<')
     const {email, password} = req.body
     Organizer.findOne({
       where: {
@@ -63,7 +65,7 @@ class OrganizerController {
             message: "Can't find organizer"
           })
         }
-        console.log(dataOrganizer)
+        console.log(dataOrganizer, 'masuk sini<<<<<<')
         res.status(200).json(dataOrganizer)
       })
       .catch(err => {
