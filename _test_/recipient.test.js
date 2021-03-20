@@ -81,10 +81,10 @@ describe("Success test cases CRUD recipient", function () {
     });
   });
 
-  describe("GET /recipients/:certificateNumber", function () {
+  describe("GET /recipients/:recipientId", function () {
     it("should return status 200 with datas", function (done) {
       request(app)
-        .get(`/recipients/${certificateNumberBf}`)
+        .get(`/recipients/${recipientId}`)
         .set("access_token", jwtToken)
         .end((err, res) => {
           if (err) return done(err);
@@ -264,10 +264,10 @@ describe("Failed test cases CRUD participant", function () {
     // });
   });
 
-  describe("GET /recipients/:certificateNumber", function () {
+  describe("GET /recipients/:recipientId", function () {
     it("should return status 401 when jwt is not provided", function (done) {
       request(app)
-        .get(`/recipients/${certificateNumberBf}`)
+        .get(`/recipients/${recipientId}`)
         .end((err, res) => {
           if (err) return done(err);
           expect(res.status).toEqual(401);
@@ -277,7 +277,7 @@ describe("Failed test cases CRUD participant", function () {
     });
     it("should return status 401 when access_token is invalid", function (done) {
       request(app)
-        .get(`/recipients/${certificateNumberBf}`)
+        .get(`/recipients/${recipientId}`)
         .set('access_token', 'errortesttoken')
         .end((err, res) => {
           if (err) return done(err);
@@ -289,9 +289,9 @@ describe("Failed test cases CRUD participant", function () {
           return done();
         });
     });
-    it("should return status 404 when certificate number is not found", function (done) {
+    it("should return status 404 when recipient is not found", function (done) {
       request(app)
-        .get(`/recipients/xxxxx`)
+        .get(`/recipients/1000`)
         .set("access_token", jwtToken)
         .end((err, res) => {
           if (err) return done(err);
@@ -299,7 +299,7 @@ describe("Failed test cases CRUD participant", function () {
           expect(res.body).toEqual({
             name: "CustomError",
             code: 404,
-            message: "certificate not found",
+            message: "recipient not found",
           });
           return done();
         });
