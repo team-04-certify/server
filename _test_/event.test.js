@@ -7,16 +7,16 @@ let tokenUser = "";
 let organizeData;
 let eventData;
 
+let user = {
+  name: "Certify",
+  email: "admin@mail.com",
+  password: "123456",
+};
+beforeEach(() => {
+  tokenUser = jwt.sign(user, "certifyjayaaaselole123123");
+});
+
 beforeAll(() => {
-  let user = {
-    id: 1,
-    name: "Certify",
-    email: "admin@mail.com",
-    password: "123456",
-  };
-
-  tokenUser = jwt.sign(user, "certify");
-
   Organizer.create(user)
     .then((response) => {
       organizerName = response;
@@ -40,7 +40,7 @@ afterAll(() => {
     .catch((response) => {});
 });
 
-describe("POST /events/:organizerId", () => {
+describe("POST /events/:organizerId", function () {
   it("should return status 201 with message", (done) => {
     let body = {
       event: "SEMINAR NGODING SE JAWA",
@@ -53,6 +53,7 @@ describe("POST /events/:organizerId", () => {
       .set("access_token", tokenUser)
       .end((err, res) => {
         if (err) {
+          console.log(err);
           done(err);
         }
         expect(res.status).toEqual(201);
@@ -62,7 +63,7 @@ describe("POST /events/:organizerId", () => {
       });
   });
 
-  it("should return status 400 with message (error empty)", (done) => {
+  it("should return status 400 with message (error empty)", function (done) {
     let body = {
       event: "",
       date: "",
@@ -84,7 +85,7 @@ describe("POST /events/:organizerId", () => {
       });
   });
 
-  it("should return status 401 with message (error no acces token)", (done) => {
+  it("should return status 401 with message (error no acces token)", function (done) {
     let body = {
       event: "SEMINAR NGODING SE JAWA",
       date: "07/14/2021",
@@ -152,7 +153,7 @@ describe("GET /:organizerName/:eventId Table", function () {
 });
 
 describe("PUT /events/eventId", () => {
-  it("should return status 200 with message succes", (done) => {
+  it("should return status 200 with message succes", function (done) {
     let body = {
       event: "SEMINAR NGODING SE LOMBOK",
       date: "07/14/2021",
@@ -174,7 +175,7 @@ describe("PUT /events/eventId", () => {
       });
   });
 
-  it("should return status 4000 with error message", (done) => {
+  it("should return status 4000 with error message", function (done) {
     let body = {
       event: "",
       date: "",
@@ -196,7 +197,7 @@ describe("PUT /events/eventId", () => {
       });
   });
 
-  it("should return status 401 with message (error no acces token)", (done) => {
+  it("should return status 401 with message (error no acces token)", function (done) {
     let body = {
       event: "SEMINAR NGODING SE LOMBOK",
       date: "07/14/2021",
