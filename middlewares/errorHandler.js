@@ -29,13 +29,13 @@ module.exports = (err, req, res, next) => {
       break
     
     case 'jwt is required':
-      res.status(400).json({
+      res.status(401).json({
         message: err.message
       })
       break
 
     case 'invalid jwt':
-      res.status(400).json({
+      res.status(401).json({
         message: err.message
       })
       break
