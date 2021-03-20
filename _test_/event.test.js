@@ -6,44 +6,52 @@ const { Organizer, Event, Recipient } = require("../models");
 let access_token = "";
 let organizerId = 0;
 let organizerName = ""
-// let eventData;
+let eventId = 0;
+  beforeEach(async () => {
+    try{
+    const organizerForm = {
+      name: "AdminTestCorp",
+      email: "admin@mail.com",
+      password: "123456",
+    };
+    access_token = jwt.sign(organizerForm, "certifyjayaaaselole123123");
+    const organizerBf = await Organizer.create(organizerForm)
+    organizerId = +organizerBf.id;
+    organizerName = organizerBf.name
+        const eventForm = {
+          title: "Workshop Admins",
+          date: "04/12/2021",
+          type: "Workshop",
+          OrganizerId: organizerId,
+        };
+    const eventBf = await Event.create(eventForm)
+    eventId = +eventBf.id
+        const recipientForm = {
+          name: "John Doe BeforeAll",
+          email: "participantbeforeall@mail.com",
+          birthDate: "04/03/1991",
+          certificateNumber: "aaa123",
+          role: "attendee",
+          EventId: eventId,
+        };
+    const recipientBf = await Recipient.create(recipientForm)
+    certificateNumberBf = recipientBf.certificateNumber;
+    recipientId = +recipientBf.id
+      } catch(err){
+        console.log(err);
+      }
+  });
 
-// let organizer = {
-//   name: "Certify",
-//   email: "admin@mail.com",
-//   password: "123456",
-// };
-// beforeEach(() => {
-//   tokenUser = jwt.sign(organizer, "certifyjayaaaselole123123");
-// });
-
-beforeAll(() => {
-  let organizer = {
-    name: "Certify",
-    email: "admin@mail.com",
-    password: "123456",
-  };
-  access_token = jwt.sign(organizer, "certifyjayaaaselole123123");
-  Organizer.create(organizer)
-    .then((response) => {
-      organizerId = response.id;
-      organizerName = response.name
-    })
-    .catch((err) => {
+  afterEach(async () => {
+    try{
+      await Organizer.destroy({ truncate: true })
+      await Event.destroy({ truncate: true })
+      await Recipient.destroy({ truncate: true })
+    } catch(err){
       console.log(err);
-    });
-});
+    }
 
-afterAll(() => {
-  Organizer.destroy()
-    .then((response) => {
-      return Event.destroy()
-    })
-    .then((response) => {
-      return Recipient.destroy()
-    })
-    .catch((response) => {});
-});
+  });
 
 describe("POST /events/:organizerId", function () {
   it("should return status 201 with message", (done) => {
@@ -54,7 +62,7 @@ describe("POST /events/:organizerId", function () {
       organizerId: 1,
     };
     request(app)
-      .post(`/events/1`)
+      .post(`/events/${organizerId}`)
       .send(body)
       .set("access_token", access_token)
       .end((err, res) => {
@@ -100,7 +108,7 @@ describe("POST /events/:organizerId", function () {
       organizerId: 1,
     };
     request(app)
-      .post(`/events/1`)
+      .post(`/events/${organizerId}`)
       .send(body)
       .set("access_token", '')
       .end((err, res) => {
@@ -118,7 +126,7 @@ describe("POST /events/:organizerId", function () {
 describe("GET /:organizerName/:eventId Table", function () {
   it("should return status 200 with data of event", function (done) {
     request(app)
-      .get(`/events/Certify/1`)
+      .get(`/events/${organizerName}/${eventId}`)
       .set("access_token", access_token)
       .end((err, res) => {
         if (err) {
@@ -132,23 +140,27 @@ describe("GET /:organizerName/:eventId Table", function () {
       });
   });
 
-  // it("should return status 404 with error message", function (done) {
-  //   request(app)
-  //     .get(`/events/Certify/1`)
-  //     .set("access_token", access_token)
-  //     .end((err, res) => {
-  //       if (err) {
-  //         done(err);
-  //       }
-  //       expect(res.status).toEqual(404);
-  //       expect(res.body).toHaveProperty("message");
-  //       done();
-  //     });
-  // });
+  it("should return status 404 with error message", function (done) {
+    request(app)
+      .get(`/events/robi/${eventId}`)
+      // .get(`/events/robi/1`)
+      .set("access_token", access_token)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        expect(res.status).toEqual(404);
+        expect(typeof res.body).toEqual("object");
+        expect(res.body).toHaveProperty("message");
+        expect(res.body).toHaveProperty("code");
+        expect(res.body).toHaveProperty("name");
+        done();
+      });
+  });
 
   it("should return status 401 with error message (no access token)", function (done) {
     request(app)
-      .get(`/${organizerName}/1`)
+      .get(`/${organizerName}/${eventId}`)
       .end((err, res) => {
         if (err) {
           done(err);
@@ -169,7 +181,7 @@ describe("PUT /events/:eventId", () => {
     };
 
     request(app)
-      .put("/events/1")
+      .put(`/events/${eventId}`)
       .send(body)
       .set("access_token", access_token)
       .end((err, res) => {
@@ -178,12 +190,12 @@ describe("PUT /events/:eventId", () => {
         }
         expect(res.status).toEqual(200);
         expect(typeof res.body).toEqual("object");
-        expect(res.body.message).toHaveProperty("event");
+        expect(res.body).toHaveProperty("event");
         done();
       });
   });
 
-  // it("should return status 4000 with error message", function (done) {
+  // it("should return status 400 with error message", function (done) {
   //   let body = {
   //     event: "",
   //     date: "",
@@ -205,68 +217,71 @@ describe("PUT /events/:eventId", () => {
   //     });
   // });
 
-  // it("should return status 401 with message (error no acces token)", function (done) {
-  //   let body = {
-  //     event: "SEMINAR NGODING SE LOMBOK",
-  //     date: "07/14/2021",
-  //     type: "Seminar",
-  //     organizerId: 1,
-  //   };
-  //   request(app)
-  //     .post("/events/1")
-  //     .send(body)
-  //     .end((err, res) => {
-  //       if (err) {
-  //         done(err);
-  //       }
-  //       expect(res.status).toEqual(401);
-  //       expect(res.body).toHaveProperty("message");
-  //       expect(res.body.message).toEqual("Unauthorized");
-  //       done();
-  //     });
-  // });
+  it("should return status 401 with message (error no acces token)", function (done) {
+    let body = {
+      event: "SEMINAR NGODING SE LOMBOK",
+      date: "07/14/2021",
+      type: "Seminar",
+      organizerId: 1,
+    };
+    request(app)
+      .post(`/events/${eventId}`)
+      .send(body)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        expect(res.status).toEqual(401);
+        expect(res.body).toHaveProperty("message");
+        expect(res.body.message).toEqual("jwt is required");
+        done();
+      });
+  });
 });
 
-// describe("DELETE /events/eventId", () => {
-//   it("should return status 200 with message succes", (done) => {
-//     request(app)
-//       .delete("/events/1")
-//       .set("access_token", tokenUser)
-//       .end((err, res) => {
-//         if (err) {
-//           done(err);
-//         }
-//         expect(res.status).toEqual(200);
-//         expect(res.body).toHaveProperty("message");
-//         done();
-//       });
-//   });
+describe("DELETE /events/eventId", () => {
+  it("should return status 200 with message succes", (done) => {
+    request(app)
+      .delete(`/events/${eventId}`)
+      .set("access_token", access_token)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        expect(res.status).toEqual(200);
+        expect(res.body).toHaveProperty("message");
+        done();
+      });
+  });
 
-//   it("should return status 404 with mesage error", (done) => {
-//     request(app)
-//       .delete("/events/1")
-//       .set("access_token", tokenUser)
-//       .end((err, res) => {
-//         if (err) {
-//           done(err);
-//         }
-//         expect(res.status).toEqual(404);
-//         expect(res.body).toHaveProperty("message");
-//         done();
-//       });
-//   });
+  it("should return status 404 with mesage error", (done) => {
+    request(app)
+      .delete("/events/10")
+      .set("access_token", access_token)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        expect(res.status).toEqual(404);
+        expect(typeof res.body).toEqual("object");
+        expect(res.body).toHaveProperty("message");
+        expect(res.body).toHaveProperty("code");
+        expect(res.body).toHaveProperty("name");
+        done();
+      });
+  });
 
-//   it("should return status 401 with mesage error(no access token)", (done) => {
-//     request(app)
-//       .delete("/events/1")
-//       .end((err, res) => {
-//         if (err) {
-//           done(err);
-//         }
-//         expect(res.status).toEqual(401);
-//         expect(res.body).toHaveProperty("message");
-//         expect(res.body.message).toEqual("Unauthorized");
-//         done();
-//       });
-//   });
-// });
+  it("should return status 401 with mesage error(no access token)", (done) => {
+    request(app)
+      .delete(`/events/${eventId}`)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        expect(res.status).toEqual(401);
+        expect(res.body).toHaveProperty("message");
+        expect(res.body.message).toEqual("jwt is required");
+        done();
+      });
+  });
+});
