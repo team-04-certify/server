@@ -24,10 +24,10 @@ class RecipientContoller {
   static async getRecipient(req, res, next) {
     try {
 
-      const certificateNumber = req.params.certificateNumber
-      const recipient = await Recipient.findOne({where: {certificateNumber}})
+      const id = +req.params.recipientId
+      const recipient = await Recipient.findOne({where: {id}})
       if(!recipient){
-        throw { name: 'CustomError', code: 404, message: 'certificate not found'}
+        throw { name: 'CustomError', code: 404, message: 'recipient not found'}
       }
       res.status(200).json(recipient)
     } catch (error) {

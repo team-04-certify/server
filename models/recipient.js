@@ -56,8 +56,11 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: {
             args: true,
             msg: "Role cannot be empty",
-          },
+          }
         },
+      },
+      certificateLink: {
+        type: DataTypes.STRING
       },
       EventId: DataTypes.INTEGER,
     },
