@@ -1,9 +1,13 @@
-const { Recipient } = require('../models')
+const { Recipient, Event } = require('../models')
 
 class RecipientContoller {
   static async addRecipients(req, res, next) {
     try {
       const eventId = +req.params.eventId
+      const event = await Event.findOne({where: {id: eventId}})
+      if(!event){
+        throw { name: 'CustomError', code: 404, message: 'event not found'}
+      }
       const recipientsFromCSV = req.body.recipients
       let recipientsWithEventId = []
       recipientsFromCSV.forEach((recipient, index) => {

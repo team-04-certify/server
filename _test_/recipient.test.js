@@ -194,6 +194,28 @@ describe("Failed test cases CRUD participant", function () {
   });
 
   describe("POST /recipients/:eventId", function () {
+    it("should return status 404 when eventId was not found", function (done) {
+      const body = {
+        recipients: [
+          {data: ["name", "email", "birthdate", "certificateNumber", "role"]},
+          {data: ["John Doe", "johndoe@mail.com", "03/04/1993", "ads2sd334", "attendee"]}
+        ]
+      }
+      request(app)
+        .post(`/recipients/1000`)
+        .set("access_token", jwtToken)
+        .send(body)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(404);
+          expect(res.body).toEqual({
+            name: "CustomError",
+            code: 404,
+            message: "event not found",
+          });
+          return done();
+        });
+    });
     it("should return status 401 when access_token is not provided", function (done) {
       const body = {
         recipients: [
