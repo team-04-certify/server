@@ -187,9 +187,6 @@ class CertificateController {
                             else console.log(info);
                         });
                         //////>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-
                     }
                 })
             })
