@@ -17,6 +17,7 @@ describe("Success test cases CRUD recipient", function () {
       password: "123456",
     };
     jwtToken = jwt.sign(organizerForm, process.env.SECRET_KEY);
+    invalidJwtToken = jwt.sign({name: "A CORP", email: "lala@mil.com", password: 'qwerty'}, process.env.SECRET_KEY)
     const organizerBf = await Organizer.create(organizerForm)
     organizerId = +organizerBf.id;
         const eventForm = {
@@ -194,6 +195,26 @@ describe("Failed test cases CRUD participant", function () {
   });
 
   describe("POST /recipients/:eventId", function () {
+    it("should return status 401 when user was not authenticated", function (done) {
+      const body = {
+        recipients: [
+          {data: ["name", "email", "birthdate", "certificateNumber", "role"]},
+          {data: ["John Doe", "johndoe@mail.com", "03/04/1993", "ads2sd334", "attendee"]}
+        ]
+      }
+      request(app)
+        .post(`/recipients/${eventId}`)
+        .set("access_token", invalidJwtToken)
+        .send(body)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(401);
+          expect(res.body).toEqual({
+            message: 'invalid jwt'
+          });
+          return done();
+        });
+    });
     it("should return status 404 when eventId was not found", function (done) {
       const body = {
         recipients: [
