@@ -9,13 +9,23 @@ class RecipientContoller {
       recipientsFromCSV.forEach((recipient, index) => {
         if(index !== 0){
           recipientsWithEventId.push({name: recipient.data[0], email:recipient.data[1], birthDate:recipient.data[2], certificateNumber:recipient.data[3], role:recipient.data[4], EventId: eventId})
+
         }
       })
-      console.log(recipientsWithEventId);
-      const recipients = await Recipient.bulkCreate(recipientsWithEventId)
-      res.status(201).json(recipients)
-      
-
+      const recipients = await Recipient.bulkCreate(recipientsWithEventId, {attributes: ['id']})
+      let temp = recipients.map( recipient => {
+        return {
+          id: recipient.id,
+          name: recipient.name, 
+          email: recipient.email, 
+          birthDate: recipient.birthDate, 
+          certificateNumber: recipient.certificateNumber, 
+          certificateLink: `https://firebase/validate/${recipient.id}`, 
+          role: recipient.role, 
+          EventId: recipient.EventId}
+        }) 
+      const updatedRecipients = await Recipient.bulkCreate(temp, {updateOnDuplicate: ['certificateLink']})
+      res.status(201).json(updatedRecipients)
     } catch (error) {
       next(error)
     }

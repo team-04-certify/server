@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
   }
   Recipient.init(
     {
+      id: {
+        primaryKey: true,
+        autoIncrement: true,
+        type: DataTypes.UUID,
+      }, 
       name: {
         type: DataTypes.STRING,
         validate: {
