@@ -14,7 +14,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Organizer.init(
-    {
+    {id: {
+      primaryKey: true,
+      autoIncrement: true,
+      type: DataTypes.UUID,
+    },
       name: {
         type: DataTypes.STRING,
         validate: {

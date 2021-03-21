@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
   }
   Event.init(
     {
+      id: {
+        primaryKey: true,
+        autoIncrement: true,
+        type: DataTypes.UUID,
+      }, 
       title: {
         type: DataTypes.STRING,
         validate: {
