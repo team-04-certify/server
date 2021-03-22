@@ -1,11 +1,11 @@
 const RecipientRouter = require("express").Router();
-const RecipientContoller = require("../controller/RecipientController");
+const RecipientController = require("../controller/RecipientController");
 const authentication = require('../middlewares/authentication')
 // RecipientRouter.use(authentication)
-RecipientRouter.post("/recipients/:eventId",authentication, RecipientContoller.addRecipients)
-RecipientRouter.get("/recipients/:recipientId",authentication, RecipientContoller.getRecipient)
-RecipientRouter.delete("/recipients/:recipientId",authentication, RecipientContoller.deleteRecipient)
-RecipientRouter.put("/recipients/:eventId/:recipientId",authentication, RecipientContoller.putRecipient)
-
+RecipientRouter.post("/recipients/:eventId",authentication, RecipientController.addRecipients)
+RecipientRouter.get("/recipients/:recipientId",authentication, RecipientController.getRecipient)
+RecipientRouter.delete("/recipients/:recipientId",authentication, RecipientController.deleteRecipient)
+RecipientRouter.put("/recipients/:eventId/:recipientId",authentication, RecipientController.putRecipient)
+RecipientRouter.get("/recipients/all/:eventId",authentication, RecipientController.getRecipients)
 
 module.exports = RecipientRouter;

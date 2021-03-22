@@ -48,6 +48,23 @@ class RecipientContoller {
       next(error)
     }
   }
+  static async getRecipients(req, res, next) {
+    try {
+      const eventId = +req.params.eventId
+      const event = await Event.findOne({
+        where: {
+            id: eventId
+        },
+        include: [{
+            model: Recipient
+        }]
+      })
+      const recipients = event.Recipients
+      res.status(200).json(recipients)
+    } catch (error) {
+      next(error)
+    }
+  }
   static async deleteRecipient(req, res, next) {
     try {
       const recipientId = +req.params.recipientId
