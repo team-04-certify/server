@@ -13,7 +13,7 @@ class CertificateController {
     static generateCertificate(req, res) {
         const eventId = +req.params.eventId
         const organizerId = +req.organizer.id
-        console.log('MASUK CErtificate');
+        console.log('MASUK CErtificate', organizerId);
         const defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
         const Apikey = defaultClient.authentications['Apikey'];
         Apikey.apiKey = 'c7d7af25-2841-440a-97a2-7eea43454226';
@@ -31,7 +31,7 @@ class CertificateController {
                 const recipients = response.Events[0].Recipients
                 let payloads = recipients.map(recipient => {
                     return {
-                    eventTitle: response.Events[0].title.trim(),
+                    eventTitle: response.Events[0].title,
                     eventType: response.Events[0].type,
                     name: recipient.name,
                     role: recipient.role,
@@ -40,7 +40,7 @@ class CertificateController {
                     namedFolder: recipient.name.split(' ').join('-')
                     }
                 })
-                console.log(payloads, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
+                // console.log(payloads, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
                 //////////////////////////////////////GENERATE PDF ////////////////////////////////////////
                 payloads.forEach(payload => {
                     QRCode.toFile(`./storage/qrcodes/${payload.namedFolder}.png`, payload.certificateLink, {}, (err) => {
@@ -101,33 +101,39 @@ class CertificateController {
                     const callback = function (error, data, response) {
                         if (error) {
                             console.error(error);
+                            throw {error}
                         } else {
                             fs.writeFile(`./storage/outputs/${payload.namedFolder}.pdf`, data, "binary", function (err) {
                                 if (err) {
                                     console.log(err);
+                                    throw {err}
                                 } else {
                                     console.log("The file was saved!");
                                     CertificateController.embedPng(req, res, payload)
                                 }
                             });
-                            console.log('Successful - done.');
+                            // console.log('Successful - done.');
                         }
                     };
                     apiInstance.convertDocumentPptxToPdf(inputFile, callback);
+                    
                     //////////////////////CONVERT PPT TO PDF ////////////////////////////////
                 })
-                res.status(200).json({message: 'success'})
+                
                 //////////////////////////////////////GENERATE PDF ////////////////////////////////////////
             })
             .catch(err => {
                 console.log(err);
+                res.status(500).json(error)
             })
         
     }
 
     static embedPng(req, res, payload) {
         const run = async (pathToPDF, pathToImage) => {
+            console.log(pathToPDF, 'check pdf doc????>>>>>>>>>>>>>>>>>>>>>>>>>>>');
             const pdfDoc = await PDFDocument.load(fs.readFileSync(pathToPDF))
+            console.log('22222222????>>>>>>>>>>>>>>>>>>>>>>>>>>>');
             const img = await pdfDoc.embedPng(fs.readFileSync(pathToImage))
             const imagePage = pdfDoc.getPage(0)
             imagePage.drawImage(img, {
@@ -155,11 +161,10 @@ class CertificateController {
             .then(_ => {
                 fs.readFile(`./storage/results/${payload.namedFolder}-result.pdf`, (err, data) => {
                     if (err) {
-                        console.log(err, "Checkkkk >>>>>>");
                         // res.statusCode = 500
                         // res.send(err)
                         // res.end(err)
-                        return err
+                        throw {err}
                     } else {
                         var transporter = nodemailer.createTransport({
                             service: "gmail",
@@ -183,14 +188,21 @@ class CertificateController {
                         };
 
                         transporter.sendMail(mailOptions, function (err, info) {
-                            if (err) console.log(err);
-                            else console.log(info);
+                            if (err) {
+                                throw {err}
+                            }
+                            else {
+                                res.status(200).json({message: 'success'})
+                            }
                         });
                         //////>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                     }
                 })
             })
-            .catch(console.error)
+            .catch(error => {
+                console.log(error, 'examine ===>>>>>>> error');
+                res.status(500).json(error)
+            })
         ///////////////////////////////////////////////// 
     }
 }

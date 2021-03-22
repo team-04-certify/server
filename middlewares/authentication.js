@@ -19,6 +19,7 @@ module.exports = async (req, res, next) => {
     //     message: 'jwt is required'
     //   })
     // }
+    console.log(payload, "CHECK PAYLOAD IN AUTHENTICATION");
 
     const organizer = await Organizer.findOne({
       where: {

@@ -16,10 +16,10 @@ describe("Success test cases CRUD recipient", function () {
       email: "admin@mail.com",
       password: "123456",
     };
-    jwtToken = jwt.sign(organizerForm, process.env.SECRET_KEY);
-    invalidJwtToken = jwt.sign({name: "A CORP", email: "lala@mil.com", password: 'qwerty'}, process.env.SECRET_KEY)
     const organizerBf = await Organizer.create(organizerForm)
     organizerId = +organizerBf.id;
+    jwtToken = jwt.sign({id: organizerId, name: organizerForm.name, email: organizerForm.email}, process.env.SECRET_KEY);
+    invalidJwtToken = jwt.sign({id: organizerId, name: "A CORP", email: "lala@mil.com", password: 'qwerty'}, process.env.SECRET_KEY)
         const eventForm = {
           title: "Workshop Admins",
           date: "04/12/2021",
