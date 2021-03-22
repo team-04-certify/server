@@ -36,13 +36,13 @@ class CertificateController {
                     name: recipient.name,
                     role: recipient.role,
                     email: recipient.email,
-                    certificateLink: 'https://www.google.com',
+                    certificateLink: recipient.certificateLink,
                     namedFolder: recipient.name.split(' ').join('-')
                     }
                 })
                 // console.log(payloads, '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
                 //////////////////////////////////////GENERATE PDF ////////////////////////////////////////
-                payloads.forEach(payload => {
+                payloads.forEach((payload, index, payloads) => {
                     QRCode.toFile(`./storage/qrcodes/${payload.namedFolder}.png`, payload.certificateLink, {}, (err) => {
                         if (err) console.log(err)
                         else console.log('Success')
@@ -109,15 +109,16 @@ class CertificateController {
                                     throw {err}
                                 } else {
                                     console.log("The file was saved!");
-                                    CertificateController.embedPng(req, res, payload)
+                                    CertificateController.embedPng(req, res, payload, index, payloads.length - 1)
                                 }
                             });
                             // console.log('Successful - done.');
                         }
                     };
                     apiInstance.convertDocumentPptxToPdf(inputFile, callback);
-                    
+                   
                     //////////////////////CONVERT PPT TO PDF ////////////////////////////////
+                    
                 })
                 
                 //////////////////////////////////////GENERATE PDF ////////////////////////////////////////
@@ -129,7 +130,7 @@ class CertificateController {
         
     }
 
-    static embedPng(req, res, payload) {
+    static embedPng(req, res, payload, index, maxArrLength) {
         const run = async (pathToPDF, pathToImage) => {
             console.log(pathToPDF, 'check pdf doc????>>>>>>>>>>>>>>>>>>>>>>>>>>>');
             const pdfDoc = await PDFDocument.load(fs.readFileSync(pathToPDF))
@@ -192,7 +193,9 @@ class CertificateController {
                                 throw {err}
                             }
                             else {
-                                res.status(200).json({message: 'success'})
+                                if(index === maxArrLength){
+                                    res.status(200).json({message: 'success'})
+                                }
                             }
                         });
                         //////>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
