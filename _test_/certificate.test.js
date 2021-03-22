@@ -15,6 +15,12 @@ describe("Success test cases CRUD recipient", function () {
       email: "adminnnn@mail.com",
       password: "123456",
     };
+    // const body = {
+    //   recipients: [
+    //     {data: ["name", "email", "birthdate", "certificateNumber", "role", "certificateLink"]},
+    //     {data: ["JohnDoe", "johndoe@mail.com", "03/04/1993", "ads2sd334", "attendee", "www.google.com"]}
+    //   ]
+    // }
     const organizerBf = await Organizer.create(organizerForm)
     organizerId = +organizerBf.id;
     jwtToken = jwt.sign({id: organizerId, name: organizerForm.name, email: organizerForm.email}, process.env.SECRET_KEY);
@@ -35,6 +41,7 @@ describe("Success test cases CRUD recipient", function () {
           certificateNumber: "aaa123",
           role: "attendee",
           EventId: eventId,
+          certificateLink: "www.google.com"
         };
     const recipientBf = await Recipient.create(recipientForm)
     recipientId = +recipientBf.id
@@ -59,8 +66,8 @@ describe("Success test cases CRUD recipient", function () {
     it("should return status 200 with a success message", function (done) {
       const body = {
        recipients: [
-         {data: ["name", "email", "birthdate", "certificateNumber", "role"]},
-         {data: ["John Doe", "johndoe@mail.com", "03/04/1993", "ads2sd334", "attendee"]}
+         {data: ["name", "email", "birthdate", "certificateNumber", "role", "certificateLink"]},
+         {data: ["John Doe", "johndoe@mail.com", "03/04/1993", "ads2sd334", "attendee", "www.google.com"]}
        ]
       };
       request(app)
