@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "postgres",
-    "password": "rahasia",
+    "password": "postgres",
     "database": "certify_database_development",
     "host": "localhost",
     "dialect": "postgres"

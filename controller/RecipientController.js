@@ -47,7 +47,6 @@ class RecipientController {
 
   static async getRecipient(req, res, next) {
     try {
-
       const id = +req.params.recipientId
       const recipient = await Recipient.findOne({
         where: {id},
@@ -66,6 +65,7 @@ class RecipientController {
   }
   static async getRecipients(req, res, next) {
     try {
+      console.log('masuk')
       const eventId = +req.params.eventId
       const event = await Event.findOne({
         where: {
@@ -75,9 +75,11 @@ class RecipientController {
             model: Recipient
         }]
       })
+      console.log(eventId, event, '<<<')
       const recipients = event.Recipients
       res.status(200).json(recipients)
     } catch (error) {
+      console.log(error, '<<<error')
       next(error)
     }
   }
