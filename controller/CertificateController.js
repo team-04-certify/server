@@ -31,6 +31,10 @@ class CertificateController {
             }]
         })
         const recipients = organizer.Events[0].Recipients
+        if(recipients.length <= 0){
+            console.log(recipients, 'log recipients>>>>>>>>');
+            throw {name: 'CustomError', code: 400, message: 'at least one certificate recipient is required'}
+        }
         let payloads = recipients.map(recipient => {
             return {
             eventTitle: organizer.Events[0].title,
@@ -82,7 +86,7 @@ class CertificateController {
                 // }
                 doc = await new Docxtemplater(zip)
                 // doc.setData(payload);
-                doc.render()
+                await doc.render()
                 // try {
                 //     doc.render()
                 // }
@@ -100,12 +104,10 @@ class CertificateController {
                 const inputFile = Buffer.from(fs.readFileSync(`./storage/inputs/${payload.namedFolder}.pptx`).buffer); // File | Input file to perform the operation on.
                 const callback = function (error, data, response) {
                     if (error) {
-                        console.error(error);
                         throw {error}
                     } else {
                         fs.writeFile(`./storage/outputs/${payload.namedFolder}.pdf`, data, "binary", function (err) {
                             if (err) {
-                                console.log(err);
                                 throw {err}
                             } else {
                                 console.log("new pdf (without qrcode) is saved");
@@ -122,7 +124,6 @@ class CertificateController {
                                 .then (_ => {
                                   fs.readFile(`./storage/results/${payload.namedFolder}-result.pdf`, (err, data) => {
                                       if (err) {
-                                          console.log(err, 'masuk errrroooooor<<<<<<<< fs')
                                           throw {err}
                                       } else {
                                           console.log('result pdf is saved')
@@ -173,19 +174,11 @@ class CertificateController {
                 apiInstance.convertDocumentPptxToPdf(inputFile, callback);
                 console.log('pptx was converted to PDF')
             } catch(error) {
-                if(error.code === 'ENOENT'){
-                    next({name: 'CustomError', code: 404, message: 'no such file or directory'})
-                } else {
-                    next(error)     
-                }
+                throw(error)
             }
         })
         } catch (error){
-            if(error.code === 'ENOENT'){
-                next({name: 'CustomError', code: 404, message: 'no such file or directory'})
-            } else {
-                next(error)     
-            }
+            next(error)
         }
         
     }

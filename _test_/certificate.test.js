@@ -73,6 +73,62 @@ describe("Success test cases CRUD recipient", function () {
     });
 
   });
+
+  describe("GET /certificates/:eventId", function () {
+
+    jest.setTimeout(50000)
+    it("should return status 400 and a message when there is no recipients found", function (done) {
+      Recipient.destroy({ truncate: true })
+      request(app)
+        .get(`/certificates/${eventId}`)
+        .set("access_token", jwtToken)
+        .end((err, res) => {
+          if (err) return done(err);
+
+          expect(res.status).toEqual(400);
+          expect(res.body).toEqual({
+            "name": "CustomError",
+            "code": 400,
+            "message": "at least one certificate recipient is required",
+          });
+          
+          return done();
+        });
+    });
+
+    it("should return status 401 when jwt not provided", function (done) {
+      Recipient.destroy({ truncate: true })
+      request(app)
+        .get(`/certificates/${eventId}`)
+        // .set("access_token", jwtToken)
+        .end((err, res) => {
+          if (err) return done(err);
+
+          expect(res.status).toEqual(401);
+          expect(res.body).toEqual({"message": "jwt is required"});
+          
+          return done();
+        });
+    });
+
+    it("should return status 401 when jwt invalid", function (done) {
+      Recipient.destroy({ truncate: true })
+      request(app)
+        .get(`/certificates/${eventId}`)
+        .set("access_token", 'errortoken')
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(401);
+          expect(res.body).toEqual({
+            name: "JsonWebTokenError",
+            message: "jwt malformed",
+          });
+          
+          return done();
+        });
+    });
+
+  });
 });
 
 // const request = require("supertest");
