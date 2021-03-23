@@ -8,7 +8,7 @@ const QRCode = require('qrcode')
 const nodemailer = require('nodemailer')
 let filepath = ''
 const CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
-const { run } = require('../helpers/ pdflib');
+const { run } = require('../helpers/pdflib');
 class CertificateController {
     static async generateCertificate(req,res, next) {
         try{
