@@ -57,7 +57,7 @@ describe("Success test cases CRUD recipient", function () {
 
   describe("GET /certificates/:eventId", function () {
 
-    jest.setTimeout(30000)
+    jest.setTimeout(50000)
     it("should return status 200 with a success message", function (done) {
       const body = {
        recipients: [

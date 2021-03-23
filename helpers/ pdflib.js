@@ -5,7 +5,10 @@ const fs = require('fs')
 const run = async (pathToPDF, pathToImage) => {
     console.log(pathToPDF, 'check pdf doc????>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const pdfDoc = await PDFDocument.load(fs.readFileSync(pathToPDF).buffer)
-    const img = await pdfDoc.embedPng(fs.readFileSync(pathToImage))
+    // const img = await pdfDoc.embedPng(Buffer.from(fs.readFileSync(pathToImage)).buffer)
+    console.log(pathToImage, '<<<<<<<<< path to image')
+    console.log(fs.readFileSync(pathToImage, 'base64'), 'readfilesiync <<<<<<<<<<<<<')
+    const img = await pdfDoc.embedPng(fs.readFileSync(pathToImage, 'base64'))
     console.log('22222222????>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const imagePage = pdfDoc.getPage(0)
     imagePage.drawImage(img, {
