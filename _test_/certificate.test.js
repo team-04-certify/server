@@ -55,12 +55,12 @@ describe("Success test cases CRUD recipient", function () {
 
   });
 
-  describe("GET /certificates/:eventId", function () {
+  describe("GET /certificates/:eventId/:templateNumber", function () {
 
     jest.setTimeout(50000)
     it("should return status 200 with a success message", function (done) {
       request(app)
-        .get(`/certificates/${eventId}`)
+        .get(`/certificates/${eventId}/1`)
         .set("access_token", jwtToken)
         .end((err, res) => {
           if (err) return done(err);
@@ -74,13 +74,13 @@ describe("Success test cases CRUD recipient", function () {
 
   });
 
-  describe("GET /certificates/:eventId", function () {
+  describe("GET /certificates/:eventId/templateNumber error no recipient", function () {
 
     jest.setTimeout(50000)
     it("should return status 400 and a message when there is no recipients found", function (done) {
       Recipient.destroy({ truncate: true })
       request(app)
-        .get(`/certificates/${eventId}`)
+        .get(`/certificates/${eventId}/1`)
         .set("access_token", jwtToken)
         .end((err, res) => {
           if (err) return done(err);
@@ -99,7 +99,7 @@ describe("Success test cases CRUD recipient", function () {
     it("should return status 401 when jwt not provided", function (done) {
       Recipient.destroy({ truncate: true })
       request(app)
-        .get(`/certificates/${eventId}`)
+        .get(`/certificates/${eventId}/1`)
         // .set("access_token", jwtToken)
         .end((err, res) => {
           if (err) return done(err);
@@ -114,7 +114,7 @@ describe("Success test cases CRUD recipient", function () {
     it("should return status 401 when jwt invalid", function (done) {
       Recipient.destroy({ truncate: true })
       request(app)
-        .get(`/certificates/${eventId}`)
+        .get(`/certificates/${eventId}/1`)
         .set("access_token", 'errortoken')
         .end((err, res) => {
           if (err) return done(err);

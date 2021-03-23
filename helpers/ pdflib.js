@@ -2,7 +2,7 @@ const { PDFDocument } = require('pdf-lib')
 const path = require('path')
 const fs = require('fs')
 
-const run = async (pathToPDF, pathToImage) => {
+const run = async (pathToPDF, pathToImage, pathPPT) => {
     console.log(pathToPDF, 'check pdf doc????>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const pdfDoc = await PDFDocument.load(fs.readFileSync(pathToPDF).buffer)
     // const img = await pdfDoc.embedPng(Buffer.from(fs.readFileSync(pathToImage)).buffer)
@@ -21,6 +21,21 @@ const run = async (pathToPDF, pathToImage) => {
     const newFilePath = `./storage/results/${path.basename(pathToPDF, '.pdf')}-result.pdf`
     console.log(newFilePath, 'check new file path >>>>>>>>>>>>>>')
     fs.writeFileSync(newFilePath, pdfBytes)
+    fs.unlink(pathToPDF, (err) => {
+      if (err) {
+        throw(err)
+      }
+    })
+    fs.unlink(pathToImage, (err) => {
+      if (err) {
+        throw(err)
+      }
+    })
+    fs.unlink(pathPPT, (err) => {
+      if (err) {
+        throw(err)
+      }
+    })
     // const coba = require('../storage/results/')
 
 }
