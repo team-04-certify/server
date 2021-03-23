@@ -16,7 +16,10 @@ class CertificateController {
         const organizerId = +req.organizer.id
         const defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
         const Apikey = defaultClient.authentications['Apikey'];
-        Apikey.apiKey = 'c7d7af25-2841-440a-97a2-7eea43454226';
+        // Apikey.apiKey = 'c7d7af25-2841-440a-97a2-7eea43454226'; // punya Rizky HABIS
+        // Apikey.apiKey = 'a04c172a-dcd9-463e-b4fd-53158f19f8a4'; // punya Robi
+
+        Apikey.apiKey = '5c227385-6b3d-477b-a9ee-db4622a5bf1a';
         const organizer = await Organizer.findOne({
             where: {
                 id: organizerId
@@ -47,45 +50,45 @@ class CertificateController {
                 await QRCode.toFile(`./storage/qrcodes/${payload.namedFolder}.png`, payload.certificateLink)
                 console.log('QR code was generated')
                 ///////////////////ERROR HANDLER FROM DOCXTEMPLATER
-                function replaceErrors(key, value) {
-                    if (value instanceof Error) {
-                        return Object.getOwnPropertyNames(value).reduce(function (error, key) {
-                            error[key] = value[key];
-                            return error;
-                        }, {});
-                    }
-                    return value;
-                }
+                // function replaceErrors(key, value) {
+                //     if (value instanceof Error) {
+                //         return Object.getOwnPropertyNames(value).reduce(function (error, key) {
+                //             error[key] = value[key];
+                //             return error;
+                //         }, {});
+                //     }
+                //     return value;
+                // }
         
-                function errorHandler(error) {
-                    console.log(JSON.stringify({ error: error }, replaceErrors));
-                    if (error.properties && error.properties.errors instanceof Array) {
-                        const errorMessages = error.properties.errors.map(function (error) {
-                            return error.properties.explanation;
-                        }).join("\n");
-                        console.log('errorMessages', errorMessages);
-                    }
-                    throw error;
-                }
+                // function errorHandler(error) {
+                //     console.log(JSON.stringify({ error: error }, replaceErrors));
+                //     if (error.properties && error.properties.errors instanceof Array) {
+                //         const errorMessages = error.properties.errors.map(function (error) {
+                //             return error.properties.explanation;
+                //         }).join("\n");
+                //         console.log('errorMessages', errorMessages);
+                //     }
+                //     throw error;
+                // }
                 ///////////////////ERROR HANDLER FROM DOCXTEMPLATER
         
                 const content = fs.readFileSync(path.resolve(__dirname, filepath), 'binary');
                 const zip = new PizZip(content);
                 let doc;
-                try {
-                    doc = new Docxtemplater(zip);
-                } catch (error) {
-                    errorHandler(error);
-                }
-        
-                doc.setData(payload);
-        
-                try {
-                    doc.render()
-                }
-                catch (error) {
-                    errorHandler(error);
-                }
+                // try {
+                //     doc = new Docxtemplater(zip);
+                // } catch (error) {
+                //     errorHandler(error);
+                // }
+                doc = await new Docxtemplater(zip)
+                // doc.setData(payload);
+                doc.render()
+                // try {
+                //     doc.render()
+                // }
+                // catch (error) {
+                //     errorHandler(error);
+                // }
         
                 const filename = `${payload.namedFolder}`
                 const buf = doc.getZip().generate({ type: 'nodebuffer' });
