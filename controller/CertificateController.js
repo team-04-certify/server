@@ -6,13 +6,16 @@ const fs = require('fs')
 const assert = require('assert')
 const QRCode = require('qrcode')
 const nodemailer = require('nodemailer')
+let filepath = ''
 const CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
-const filepath = '../storage/templates/ppt-text.pptx'
 const { run } = require('../helpers/ pdflib');
 class CertificateController {
     static async generateCertificate(req,res, next) {
         try{
         const eventId = +req.params.eventId
+        const templateNumber = +req.params.templateNumber
+        filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
+        console.log(`../storage/templates/ppt-text${templateNumber}.pptx`, '  file template numbbbberrrrrrrrrrr<<<<<<<<<<<<<<<<<<<<<<<')
         const organizerId = +req.organizer.id
         const defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
         const Apikey = defaultClient.authentications['Apikey'];
@@ -37,13 +40,16 @@ class CertificateController {
         }
         let payloads = recipients.map(recipient => {
             return {
-            eventTitle: organizer.Events[0].title,
-            eventType: organizer.Events[0].type,
-            name: recipient.name,
-            role: recipient.role,
-            email: recipient.email,
-            certificateLink: recipient.certificateLink,
-            namedFolder: recipient.name.split(' ').join('-')
+              organizerName: organizer.name,
+              eventTitle: organizer.Events[0].title,
+              eventDate:  organizer.Events[0].date.toString().slice(0, 15),
+              eventType: organizer.Events[0].type,
+              name: recipient.name,
+              role: recipient.role,
+              email: recipient.email,
+              certificateNumber: recipient.certificateNumber,
+              certificateLink: recipient.certificateLink,
+              namedFolder: recipient.name.split(' ').join('-')
             }
         })
         console.log(payloads, 'payloads >>>>>>>>>>>>')
@@ -119,7 +125,7 @@ class CertificateController {
                                 const pathToImage = `./storage/qrcodes/${payload.namedFolder}.png`
                                 assert.notStrictEqual(pathToImage, null, ERRORS.ARGUMENTS)
                     
-                                run(pathToPDF, pathToImage)
+                                run(pathToPDF, pathToImage, `./storage/inputs/${payload.namedFolder}.pptx`)
                                 //  
                                 .then (_ => {
                                   fs.readFile(`./storage/results/${payload.namedFolder}-result.pdf`, (err, data) => {
@@ -154,6 +160,11 @@ class CertificateController {
                                                   throw {err}
                                               }
                                               else {
+                                                  fs.unlink(`./storage/results/${payload.namedFolder}-result.pdf`, (err) => {
+                                                    if(err) {
+                                                      throw(err)
+                                                    }
+                                                  })
                                                   if(index === payloads.length - 1){
                                                       res.status(200).json({message: 'success'})
                                                   }
