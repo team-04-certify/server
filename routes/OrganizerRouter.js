@@ -5,6 +5,6 @@ const authentication = require("../middlewares/authentication");
 OrganizerRouter.post("/register", OrganizerController.register);
 OrganizerRouter.post("/login", OrganizerController.login);
 OrganizerRouter.use(authentication);
-OrganizerRouter.get("/:organizerName", OrganizerController.home);
+OrganizerRouter.get("/", OrganizerController.home);
 
 module.exports = OrganizerRouter;

@@ -3,9 +3,9 @@ const EventController = require("../controller/EventController");
 const authentication = require("../middlewares/authentication");
 // EventRouter.get("/:organizerName", EventController.getOrganizerEvents);
 // EventRouter.use(authentication)
-EventRouter.get("/events/:organizerName/:eventId", authentication, EventController.getOrganizerEvent);
+EventRouter.get("/events/:eventId", authentication, EventController.getOrganizerEvent);
 
-EventRouter.post("/events/:organizerId", authentication, EventController.addEvent);
+EventRouter.post("/events", authentication, EventController.addEvent);
 
 EventRouter.put("/events/:eventId", authentication, EventController.editEvent);
 

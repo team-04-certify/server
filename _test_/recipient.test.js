@@ -57,12 +57,22 @@ describe("Success test cases CRUD recipient", function () {
 
   describe("POST /recipients/:eventId", function () {
     it("should return status 201 with newly created datas", function (done) {
-      const body = {
-       recipients: [
-         {data: ["name", "email", "birthdate", "certificateNumber", "role"]},
-         {data: ["John Doe", "johndoe@mail.com", "03/04/1993", "ads2sd334", "attendee"]}
-       ]
-      };
+      const body = [
+        {
+          name: 'robi',
+          email: 'robiultriawali@gmail.com',
+          birthDate: '03/12/1998',
+          certificateNumber: 'aa-ab23',
+          role: 'attended'
+        },
+        {
+          name: 'aldi',
+          email: 'rinaldiadrian5@gmail.com',
+          birthDate: '03/12/1998',
+          certificateNumber: 'aa-ab24',
+          role: 'attended'
+        }
+      ];
       request(app)
         .post(`/recipients/${eventId}`)
         .set("access_token", jwtToken)
@@ -71,11 +81,11 @@ describe("Success test cases CRUD recipient", function () {
           if (err) return done(err);
 
           expect(res.status).toEqual(201);
-          expect(res.body[0].name).toEqual(body.recipients[1].data[0]);
-          expect(res.body[0].email).toEqual(body.recipients[1].data[1]);
-          expect(new Date(res.body[0].birthDate)).toEqual(new Date(body.recipients[1].data[2]));
-          expect(res.body[0].certificateNumber).toEqual(body.recipients[1].data[3])
-          expect(res.body[0].role).toEqual(body.recipients[1].data[4]);
+          expect(res.body[0].name).toEqual(body[0].name);
+          expect(res.body[0].email).toEqual(body[0].email);
+          expect(new Date(res.body[0].birthDate)).toEqual(new Date(body[0].birthDate));
+          expect(res.body[0].certificateNumber).toEqual(body[0].certificateNumber)
+          expect(res.body[0].role).toEqual(body[0].role);
           expect(res.body[0].EventId).toEqual(eventId);
           return done();
         });
@@ -91,6 +101,34 @@ describe("Success test cases CRUD recipient", function () {
           if (err) return done(err);
           expect(res.status).toEqual(200);
           expect(typeof res.body).toEqual("object");
+          return done();
+        });
+    });
+  });
+
+  describe("GET /recipients/all/:eventId", function () {
+    it("should return status 200 with datas", function (done) {
+      request(app)
+        .get(`/recipients/all/${eventId}`)
+        .set("access_token", jwtToken)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(200);
+          expect(Array.isArray(res.body)).toEqual(true);
+          return done();
+        });
+    });
+  });
+  describe("GET /recipients/all/:eventId error no access token", function () {
+    it("should return status 401 with message", function (done) {
+      request(app)
+        .get(`/recipients/all/${eventId}`)
+        .set("access_token", '')
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(401);
+          expect(res.body).toHaveProperty("message");
+          expect(res.body.message).toEqual("jwt is required");
           return done();
         });
     });

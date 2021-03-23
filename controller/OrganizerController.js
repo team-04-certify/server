@@ -50,10 +50,10 @@ class OrganizerController {
   }
   static home(req, res, next) {
     console.log(req.organizer)
-    const { organizerName } = req.params
+    const { name } = req.organizer
     Organizer.findOne({
       where: {
-        name: organizerName
+        name
       },
       include: {
         model: Event,
@@ -66,8 +66,13 @@ class OrganizerController {
             message: "Can't find organizer"
           })
         }
-        console.log(dataOrganizer, 'masuk sini<<<<<<')
-        res.status(200).json(dataOrganizer)
+        // console.log(dataOrganizer, 'masuk sini<<<<<<')
+        res.status(200).json({
+          id: dataOrganizer.id,
+          name: dataOrganizer.name,
+          email: dataOrganizer.email,
+          Events: dataOrganizer.Events
+        })
       })
       .catch(err => {
         next(err)
