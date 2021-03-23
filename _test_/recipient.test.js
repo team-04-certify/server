@@ -114,6 +114,20 @@ describe("Success test cases CRUD recipient", function () {
         .end((err, res) => {
           if (err) return done(err);
           expect(res.status).toEqual(200);
+          expect(typeof res.body).toEqual("object");
+          return done();
+        });
+    });
+  });
+
+  describe("GET /recipients/all/:eventId", function () {
+    it("should return status 200 with datas", function (done) {
+      request(app)
+        .get(`/recipients/all/${eventId}`)
+        .set("access_token", jwtToken)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(200);
           expect(Array.isArray(res.body)).toEqual(true);
           return done();
         });
@@ -344,7 +358,33 @@ describe("Failed test cases CRUD participant", function () {
     //     });
     // });
   });
-
+  describe("GET /recipients/all/:eventId", function () {
+    it("should return status 401 when jwt is not provided", function (done) {
+      request(app)
+        .get(`/recipients/all/${eventId}`)
+        // .set("access_token", jwtToken)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(401);
+          expect(res.body).toEqual({"message": "jwt is required"});
+          return done();
+        });
+    });
+    it("should return status 401 when jwt is not provided", function (done) {
+      request(app)
+        .get(`/recipients/all/${eventId}`)
+        .set("access_token", "errortoken")
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(401);
+          expect(res.body).toEqual({
+            name: "JsonWebTokenError",
+            message: "jwt malformed",
+          });
+          return done();
+        });
+    });
+  });
   describe("GET /recipients/:recipientId", function () {
     it("should return status 401 when jwt is not provided", function (done) {
       request(app)
@@ -356,6 +396,7 @@ describe("Failed test cases CRUD participant", function () {
           return done();
         });
     });
+    
     it("should return status 401 when access_token is invalid", function (done) {
       request(app)
         .get(`/recipients/${recipientId}`)

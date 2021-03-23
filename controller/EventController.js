@@ -22,7 +22,6 @@ class EventController {
       );
       res.status(200).json({ event });
     } catch (err) {
-      console.log(err);
       next(err);
     }
   }

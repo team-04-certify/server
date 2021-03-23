@@ -46,6 +46,12 @@ module.exports = (sequelize, DataTypes) => {
       OrganizerId: {
         type: DataTypes.INTEGER,
       },
+      banner: {
+        type: DataTypes.STRING,
+      },
+      templatePath: {
+        type: DataTypes.STRING,
+      }
     },
     {
       sequelize,

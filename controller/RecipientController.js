@@ -75,7 +75,9 @@ class RecipientController {
             model: Recipient
         }]
       })
-      console.log(eventId, event, '<<<')
+      if(!event){
+        throw {name: 'CustomError', code: 404, message: 'event id not found'}
+      }
       const recipients = event.Recipients
       res.status(200).json(recipients)
     } catch (error) {
