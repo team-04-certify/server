@@ -1,6 +1,6 @@
-const { Recipient, Event } = require('../models')
+const { Recipient, Event, Organizer } = require('../models')
 
-class RecipientContoller {
+class RecipientController {
   static async addRecipients(req, res, next) {
     try {
       const eventId = +req.params.eventId
@@ -8,15 +8,25 @@ class RecipientContoller {
       if(!event){
         throw { name: 'CustomError', code: 404, message: 'event not found'}
       }
-      const recipientsFromCSV = req.body.recipients
-      let recipientsWithEventId = []
-      recipientsFromCSV.forEach((recipient, index) => {
-        if(index !== 0){
-          recipientsWithEventId.push({name: recipient.data[0], email:recipient.data[1], birthDate:recipient.data[2], certificateNumber:recipient.data[3], role:recipient.data[4], EventId: eventId})
-
+      const recipientsFromCSV = req.body.map(recipient => {
+        return {
+          name: recipient.name,
+          email: recipient.email,
+          birthDate: recipient.birthDate,
+          certificateNumber: recipient.certificateNumber,
+          role: recipient.role,
+          EventId: eventId
         }
       })
-      const recipients = await Recipient.bulkCreate(recipientsWithEventId, {attributes: ['id']})
+      console.log(recipientsFromCSV)
+      // let recipientsWithEventId = []
+      // recipientsFromCSV.forEach((recipient, index) => {
+      //   if(index !== 0){
+      //     recipientsWithEventId.push({name: recipient.data[0], email:recipient.data[1], birthDate:recipient.data[2], certificateNumber:recipient.data[3], role:recipient.data[4], EventId: eventId})
+
+      //   }
+      // })
+      const recipients = await Recipient.bulkCreate(recipientsFromCSV, {attributes: ['id']})
       let temp = recipients.map( recipient => {
         return {
           id: recipient.id,
@@ -39,7 +49,13 @@ class RecipientContoller {
     try {
 
       const id = +req.params.recipientId
-      const recipient = await Recipient.findOne({where: {id}})
+      const recipient = await Recipient.findOne({
+        where: {id},
+        include: {
+          model: Event,
+          include: Organizer
+        }
+      })
       if(!recipient){
         throw { name: 'CustomError', code: 404, message: 'recipient not found'}
       }
@@ -95,4 +111,4 @@ class RecipientContoller {
   }
 }
 
-module.exports = RecipientContoller;
+module.exports = RecipientController;

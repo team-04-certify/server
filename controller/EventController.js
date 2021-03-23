@@ -5,10 +5,11 @@ class EventController {
   static async getOrganizerEvent(req, res, next) {
     console.log('masuk getorganizer event<<<<')
     try {
-      const { organizerName, eventId } = req.params;
+      const { eventId } = req.params;
+      const { name } = req.organizer
 
       const organizer = await Organizer.findOne({
-        where: { name: organizerName },
+        where: { name },
         include: Event,
       });
 
@@ -29,14 +30,14 @@ class EventController {
   static async addEvent(req, res, next) {
     console.log('masuk addEvent')
     try {
-      const { organizerId } = req.params;
+      const { id } = req.organizer;
       const { title, date, type } = req.body;
 
       const eventData = await Event.create({
         title,
         date,
         type,
-        OrganizerId: +organizerId,
+        OrganizerId: +id,
       });
       res.status(201).json({ event: eventData });
     } catch (err) {

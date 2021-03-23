@@ -260,10 +260,10 @@ describe("POST /login", function () {
 });
 
 // ================== show organization by id==================
-describe("GET /:organizername", function () {
+describe("GET /", function () {
   it("should return status 200", function (done) {
     request(app)
-      .get(`/${organizerName}`)
+      .get(`/`)
       .set("access_token", access_token)
       .end((err, res) => {
         if (err) {
@@ -280,10 +280,10 @@ describe("GET /:organizername", function () {
   });
 });
 // ================== show organization no access token==================
-describe("GET /:organizername", function () {
+describe("GET /", function () {
   it("should return status 401", function (done) {
     request(app)
-      .get(`/${organizerName}`)
+      .get(`/`)
       .set("access_token", '')
       .end((err, res) => {
         if (err) {

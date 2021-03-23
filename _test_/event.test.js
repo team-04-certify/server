@@ -4,17 +4,20 @@ const jwt = require("jsonwebtoken");
 const { Organizer, Event, Recipient } = require("../models");
 
 let access_token = "";
+let fakeAccess_token = "";
 let organizerId = 0;
 let organizerName = ""
 let eventId = 0;
   beforeEach(async () => {
     try{
     const organizerForm = {
+      id: 1,
       name: "AdminTestCorp",
       email: "admin@mail.com",
       password: "123456",
     };
     access_token = jwt.sign(organizerForm, "certifyjayaaaselole123123");
+    fakeAccess_token = jwt.sign({id:10, name: 'aaAdminTestCorp', email: organizerForm.email, password: organizerForm.password}, "certifyjayaaaselole123123");
     const organizerBf = await Organizer.create(organizerForm)
     organizerId = +organizerBf.id;
     organizerName = organizerBf.name
@@ -62,7 +65,7 @@ describe("POST /events/:organizerId", function () {
       organizerId: 1,
     };
     request(app)
-      .post(`/events/${organizerId}`)
+      .post(`/events`)
       .send(body)
       .set("access_token", access_token)
       .end((err, res) => {
@@ -108,7 +111,7 @@ describe("POST /events/:organizerId", function () {
       organizerId: 1,
     };
     request(app)
-      .post(`/events/${organizerId}`)
+      .post(`/events`)
       .send(body)
       .set("access_token", '')
       .end((err, res) => {
@@ -126,7 +129,7 @@ describe("POST /events/:organizerId", function () {
 describe("GET /:organizerName/:eventId Table", function () {
   it("should return status 200 with data of event", function (done) {
     request(app)
-      .get(`/events/${organizerName}/${eventId}`)
+      .get(`/events/${eventId}`)
       .set("access_token", access_token)
       .end((err, res) => {
         if (err) {
@@ -140,20 +143,19 @@ describe("GET /:organizerName/:eventId Table", function () {
       });
   });
 
-  it("should return status 404 with error message", function (done) {
+  it("should return status 401 with error message", function (done) {
     request(app)
-      .get(`/events/robi/${eventId}`)
+      .get(`/events/${eventId}`)
       // .get(`/events/robi/1`)
-      .set("access_token", access_token)
+      .set("access_token", fakeAccess_token)
       .end((err, res) => {
         if (err) {
           done(err);
         }
-        expect(res.status).toEqual(404);
+        expect(res.status).toEqual(401);
         expect(typeof res.body).toEqual("object");
         expect(res.body).toHaveProperty("message");
-        expect(res.body).toHaveProperty("code");
-        expect(res.body).toHaveProperty("name");
+        expect(res.body.message).toEqual("invalid jwt");
         done();
       });
   });
@@ -225,7 +227,7 @@ describe("PUT /events/:eventId", () => {
       organizerId: 1,
     };
     request(app)
-      .post(`/events/${eventId}`)
+      .put(`/events/${eventId}`)
       .send(body)
       .end((err, res) => {
         if (err) {
