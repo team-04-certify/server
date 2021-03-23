@@ -59,16 +59,9 @@ describe("Success test cases CRUD recipient", function () {
 
     jest.setTimeout(50000)
     it("should return status 200 with a success message", function (done) {
-      const body = {
-       recipients: [
-         {data: ["name", "email", "birthdate", "certificateNumber", "role", "certificateLink"]},
-         {data: ["John Doe", "johndoe@mail.com", "03/04/1993", "ads2sd334", "attendee", "www.google.com"]}
-       ]
-      };
       request(app)
         .get(`/certificates/${eventId}`)
         .set("access_token", jwtToken)
-        .send(body)
         .end((err, res) => {
           if (err) return done(err);
 
