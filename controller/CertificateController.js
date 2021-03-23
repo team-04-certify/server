@@ -85,7 +85,7 @@ class CertificateController {
                 //     errorHandler(error);
                 // }
                 doc = await new Docxtemplater(zip)
-                // doc.setData(payload);
+                await doc.setData(payload);
                 await doc.render()
                 // try {
                 //     doc.render()
