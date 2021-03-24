@@ -388,35 +388,35 @@ describe("Failed test cases CRUD participant", function () {
     });
   });
   describe("GET /recipients/:recipientId", function () {
-    it("should return status 401 when jwt is not provided", function (done) {
-      request(app)
-        .get(`/recipients/${recipientId}`)
-        .end((err, res) => {
-          if (err) return done(err);
-          expect(res.status).toEqual(401);
-          expect(res.body).toEqual({"message": "jwt is required"});
-          return done();
-        });
-    });
-    
-    it("should return status 401 when access_token is invalid", function (done) {
-      request(app)
-        .get(`/recipients/${recipientId}`)
-        .set('access_token', 'errortesttoken')
-        .end((err, res) => {
-          if (err) return done(err);
-          expect(res.status).toEqual(401);
-          expect(res.body).toEqual({
-            name: "JsonWebTokenError",
-            message: "jwt malformed",
-          });
-          return done();
-        });
-    });
+        //   it("should return status 401 when jwt is not provided", function (done) {
+        //     request(app)
+        //       .get(`/recipients/${recipientId}`)
+        //       .end((err, res) => {
+        //         if (err) return done(err);
+        //         expect(res.status).toEqual(401);
+        //         expect(res.body).toEqual({"message": "jwt is required"});
+        //         return done();
+        //       });
+        //   });
+          
+        //   it("should return status 401 when access_token is invalid", function (done) {
+        //     request(app)
+        //       .get(`/recipients/${recipientId}`)
+        //       .set('access_token', 'errortesttoken')
+        //       .end((err, res) => {
+        //         if (err) return done(err);
+        //         expect(res.status).toEqual(401);
+        //         expect(res.body).toEqual({
+        //           name: "JsonWebTokenError",
+        //           message: "jwt malformed",
+        //         });
+        //         return done();
+        //       });
+        //   });
     it("should return status 404 when recipient is not found", function (done) {
       request(app)
         .get(`/recipients/1000`)
-        .set("access_token", jwtToken)
+        // .set("access_token", jwtToken)
         .end((err, res) => {
           if (err) return done(err);
           expect(res.status).toEqual(404);
