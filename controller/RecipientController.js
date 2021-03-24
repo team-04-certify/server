@@ -4,9 +4,9 @@ class RecipientController {
   static async addRecipients(req, res, next) {
     try {
       const eventId = +req.params.eventId
-      const event = await Event.findOne({where: {id: eventId}})
-      if(!event){
-        throw { name: 'CustomError', code: 404, message: 'event not found'}
+      const event = await Event.findOne({ where: { id: eventId } })
+      if (!event) {
+        throw { name: 'CustomError', code: 404, message: 'event not found' }
       }
       const recipientsFromCSV = req.body.map(recipient => {
         return {
@@ -16,7 +16,7 @@ class RecipientController {
           certificateNumber: recipient.certificateNumber,
           role: recipient.role,
           EventId: eventId,
-          status: "not yet send"
+          status: "not yet sent"
         }
       })
       console.log(recipientsFromCSV)
@@ -27,21 +27,21 @@ class RecipientController {
 
       //   }
       // })
-      const recipients = await Recipient.bulkCreate(recipientsFromCSV, {attributes: ['id']})
-      let temp = recipients.map( recipient => {
+      const recipients = await Recipient.bulkCreate(recipientsFromCSV, { attributes: ['id'] })
+      let temp = recipients.map(recipient => {
         return {
           id: recipient.id,
-          name: recipient.name, 
-          email: recipient.email, 
-          birthDate: recipient.birthDate, 
-          certificateNumber: recipient.certificateNumber, 
-          certificateLink: `https://firebase/validate/${recipient.id}`, 
-          role: recipient.role, 
+          name: recipient.name,
+          email: recipient.email,
+          birthDate: recipient.birthDate,
+          certificateNumber: recipient.certificateNumber,
+          certificateLink: `https://firebase/validate/${recipient.id}`,
+          role: recipient.role,
           EventId: recipient.EventId,
           status: recipient.status
         }
-        }) 
-      const updatedRecipients = await Recipient.bulkCreate(temp, {updateOnDuplicate: ['certificateLink']})
+      })
+      const updatedRecipients = await Recipient.bulkCreate(temp, { updateOnDuplicate: ['certificateLink'] })
       res.status(201).json(updatedRecipients)
     } catch (error) {
       next(error)
@@ -52,14 +52,14 @@ class RecipientController {
     try {
       const id = +req.params.recipientId
       const recipient = await Recipient.findOne({
-        where: {id},
+        where: { id },
         include: {
           model: Event,
           include: Organizer
         }
       })
-      if(!recipient){
-        throw { name: 'CustomError', code: 404, message: 'recipient not found'}
+      if (!recipient) {
+        throw { name: 'CustomError', code: 404, message: 'recipient not found' }
       }
       res.status(200).json(recipient)
     } catch (error) {
@@ -72,14 +72,14 @@ class RecipientController {
       const eventId = +req.params.eventId
       const event = await Event.findOne({
         where: {
-            id: eventId
+          id: eventId
         },
         include: [{
-            model: Recipient
+          model: Recipient
         }]
       })
-      if(!event){
-        throw {name: 'CustomError', code: 404, message: 'event id not found'}
+      if (!event) {
+        throw { name: 'CustomError', code: 404, message: 'event id not found' }
       }
       const recipients = event.Recipients
       res.status(200).json(recipients)
@@ -92,11 +92,11 @@ class RecipientController {
     try {
       const recipientId = +req.params.recipientId
       const recipient = await Recipient.findByPk(recipientId)
-      if(!recipient){
-        throw { name: 'CustomError', code: 404, message: 'recipient was not found'}
+      if (!recipient) {
+        throw { name: 'CustomError', code: 404, message: 'recipient was not found' }
       }
-      await Recipient.destroy({where: {id: recipientId}})
-      res.status(200).json({message: 'recipient was deleted successfully'})
+      await Recipient.destroy({ where: { id: recipientId } })
+      res.status(200).json({ message: 'recipient was deleted successfully' })
     } catch (error) {
       next(error)
     }
@@ -105,12 +105,12 @@ class RecipientController {
     try {
       const recipientId = req.params.recipientId
       const recipient = await Recipient.findByPk(recipientId)
-      if(!recipient){
-        throw { name: 'CustomError', code: 404, message: 'recipient was not found'}
+      if (!recipient) {
+        throw { name: 'CustomError', code: 404, message: 'recipient was not found' }
       }
       const eventId = +req.params.eventId
       const { name, email, birthDate, certificateNumber, role } = req.body
-      const updatedRecipient = await Recipient.update({ name, email, birthDate, certificateNumber, role, eventId }, {returning: true, where: {id: recipientId}})
+      const updatedRecipient = await Recipient.update({ name, email, birthDate, certificateNumber, role, eventId }, { returning: true, where: { id: recipientId } })
       res.status(200).json(updatedRecipient[1][0])
     } catch (error) {
       next(error)
