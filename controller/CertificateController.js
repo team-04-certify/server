@@ -1,4 +1,6 @@
 const { Organizer, Event, Recipient } = require('../models')
+const request = require('request')
+const https = require('https')
 const PizZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
 const path = require('path')
@@ -6,15 +8,26 @@ const fs = require('fs')
 const assert = require('assert')
 const QRCode = require('qrcode')
 const nodemailer = require('nodemailer')
-let filepath = ''
+let filepath = null
+let isLinkTemplate = false
 const CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
 const { run } = require('../helpers/pdflib');
+
+const htmlTemplate = require("../storage/html-template/index");
+const logo =
+  "https://certifyfilebucket.s3-ap-southeast-1.amazonaws.com/Certify.png";
+const top =
+  "https://d1oco4z2z1fhwp.cloudfront.net/templates/default/2966/Top.png";
+const bottom =
+  "https://d1oco4z2z1fhwp.cloudfront.net/templates/default/2966/Btm.png";
+
 class CertificateController {
     static async generateCertificate(req,res, next) {
         try{
         const eventId = +req.params.eventId
         const templateNumber = +req.params.templateNumber
-        filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
+        const responseEvent = await Event.findOne({where: {id: eventId}})
+        
         // console.log(`../storage/templates/ppt-text${templateNumber}.pptx`, '  file template numbbbberrrrrrrrrrr<<<<<<<<<<<<<<<<<<<<<<<')
         const organizerId = +req.organizer.id
         const defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
@@ -38,6 +51,30 @@ class CertificateController {
         })
         console.log(organizer, 'CHECK Organizer query result >>>>>>>>>>');
         const recipients = organizer.Events[0].Recipients
+        if(organizer.Events[0].templatePath) {
+          // setTimeout(() => {
+            
+          // }, 2000);
+          // console.log(organizer.Events[0].templatePath, 'masuk if<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+          // const file =  fs.createWriteStream(`./storage/templates/templateLink.pptx`)
+          // https.get(organizer.Events[0].templatePath, response => {
+          //   response.pipe(file)
+          // })
+          // console.log(file, 'masuk ada file soalnya <<<<<<')
+          request(organizer.Events[0].templatePath).pipe(fs.createWriteStream(`./storage/templates/templateLink.pptx`, 'utf8')) 
+          filepath = `../storage/templates/templateLink.pptx`
+          // fs.createWriteStream('./storage/templates/templateLink.pptx').pipe(request.put(organizer.Events[0].templatePath))
+          // filepath = 'file.pptx'
+          // isLinkTemplate = true
+          // console.log(filepath)
+          // fs.readFile(responseEvent.templatePath, (err) => {
+
+          // })
+        } else {
+          console.log('masuk else<<<<<<<<<<<<<<<<<<')
+          filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
+          isLinkTemplate = false
+        }
         // if(recipients){
         //     console.log(recipients, 'log recipients>>>>>>>>');
         //     throw {name: 'CustomError', code: 400, message: 'at least one certificate recipient is required'}
@@ -88,8 +125,11 @@ class CertificateController {
                 //     throw error;
                 // }
                 ///////////////////ERROR HANDLER FROM DOCXTEMPLATER
-        
+                
+                // const content = fs.readFileSync(filepath, 'binary');
+                console.log(filepath, 'ini filepath sebelum di baca di lin 116 <<<<<<<<<<<<<')
                 const content = fs.readFileSync(path.resolve(__dirname, filepath), 'binary');
+                console.log(content, '<<<<<< ini contentnya')
                 const zip = new PizZip(content);
                 let doc;
                 // try {
@@ -143,8 +183,8 @@ class CertificateController {
                                           let transporter = nodemailer.createTransport({
                                               service: "gmail",
                                               auth: {
-                                                  user: "appomailcoming@gmail.com",
-                                                  pass: "appoqwe123",
+                                                  user: "certify.sendmail@gmail.com",
+                                                  pass: "certify123",
                                               },
                                           });
                       
@@ -152,7 +192,14 @@ class CertificateController {
                                               from: "sender@email.com", // sender address
                                               to: `${payload.email}`,
                                               subject: "Subject of your email", // Subject line
-                                              html: "<p>Your html here</p>", // plain text body
+                                              // html: "<p>Your html here</p>", // plain text body
+                                              html: htmlTemplate(
+                                                top,
+                                                bottom,
+                                                payload.eventTitle,
+                                                payload.certificateLink,
+                                                logo
+                                              ), // plain text body
                                               attachments: [
                                                   {
                                                       filename: `${payload.namedFolder}-result.pdf`,
@@ -197,6 +244,7 @@ class CertificateController {
             }
         })
         } catch (error){
+            console.log(error)
             next(error)
         }
         
