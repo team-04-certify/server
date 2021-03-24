@@ -9,11 +9,23 @@ const nodemailer = require('nodemailer')
 let filepath = ''
 const CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
 const { run } = require('../helpers/pdflib');
+////////
+const htmlTemplate = require("../storage/html-template/index");
+const logo =
+  "https://certifyfilebucket.s3-ap-southeast-1.amazonaws.com/Certify.png";
+const top =
+  "https://d1oco4z2z1fhwp.cloudfront.net/templates/default/2966/Top.png";
+const bottom =
+  "https://d1oco4z2z1fhwp.cloudfront.net/templates/default/2966/Btm.png";
+////////
 class CertificateController {
     static async generateCertificate(req,res, next) {
         try{
         const eventId = +req.params.eventId
         const templateNumber = +req.params.templateNumber
+        // const responseEvent = await Event.findOnde({where: {id: eventId}})
+        // console.log(responseEvent.templateLink)
+
         filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
         // console.log(`../storage/templates/ppt-text${templateNumber}.pptx`, '  file template numbbbberrrrrrrrrrr<<<<<<<<<<<<<<<<<<<<<<<')
         const organizerId = +req.organizer.id
@@ -143,8 +155,8 @@ class CertificateController {
                                           let transporter = nodemailer.createTransport({
                                               service: "gmail",
                                               auth: {
-                                                  user: "appomailcoming@gmail.com",
-                                                  pass: "appoqwe123",
+                                                  user: "certify.sendmail@gmail.com",
+                                                  pass: "certify123",
                                               },
                                           });
                       
@@ -152,7 +164,14 @@ class CertificateController {
                                               from: "sender@email.com", // sender address
                                               to: `${payload.email}`,
                                               subject: "Subject of your email", // Subject line
-                                              html: "<p>Your html here</p>", // plain text body
+                                              // html: "<p>Your html here</p>", // plain text body
+                                              html: htmlTemplate(
+                                                top,
+                                                bottom,
+                                                payload.eventTitle,
+                                                payload.certificateLink,
+                                                logo
+                                              ), // plain text body
                                               attachments: [
                                                   {
                                                       filename: `${payload.namedFolder}-result.pdf`,
