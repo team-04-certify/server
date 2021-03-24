@@ -15,7 +15,7 @@ class CertificateController {
         const eventId = +req.params.eventId
         const templateNumber = +req.params.templateNumber
         filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
-        console.log(`../storage/templates/ppt-text${templateNumber}.pptx`, '  file template numbbbberrrrrrrrrrr<<<<<<<<<<<<<<<<<<<<<<<')
+        // console.log(`../storage/templates/ppt-text${templateNumber}.pptx`, '  file template numbbbberrrrrrrrrrr<<<<<<<<<<<<<<<<<<<<<<<')
         const organizerId = +req.organizer.id
         const defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
         const Apikey = defaultClient.authentications['Apikey'];
@@ -30,26 +30,33 @@ class CertificateController {
             include: [{
                 model: Event,
                 where: { id: eventId },
-                include: [Recipient]
+                include: [{
+                    model: Recipient,
+                    // where: {status: "not yet sent"}
+                }]
             }]
         })
+        console.log(organizer, 'CHECK Organizer query result >>>>>>>>>>');
         const recipients = organizer.Events[0].Recipients
-        if(recipients.length <= 0){
-            console.log(recipients, 'log recipients>>>>>>>>');
-            throw {name: 'CustomError', code: 400, message: 'at least one certificate recipient is required'}
-        }
+        // if(recipients){
+        //     console.log(recipients, 'log recipients>>>>>>>>');
+        //     throw {name: 'CustomError', code: 400, message: 'at least one certificate recipient is required'}
+        // }
         let payloads = recipients.map(recipient => {
+            
             return {
-              organizerName: organizer.name,
-              eventTitle: organizer.Events[0].title,
-              eventDate:  organizer.Events[0].date.toString().slice(0, 15),
-              eventType: organizer.Events[0].type,
-              name: recipient.name,
-              role: recipient.role,
-              email: recipient.email,
-              certificateNumber: recipient.certificateNumber,
-              certificateLink: recipient.certificateLink,
-              namedFolder: recipient.name.split(' ').join('-')
+                organizerName: organizer.name,
+                eventTitle: organizer.Events[0].title,
+                eventDate:  organizer.Events[0].date.toString().slice(0, 15),
+                eventType: organizer.Events[0].type,
+                recipientId: recipient.id,
+                name: recipient.name,
+                role: recipient.role,
+                email: recipient.email,
+                certificateNumber: recipient.certificateNumber,
+                certificateLink: recipient.certificateLink,
+                namedFolder: recipient.name.split(' ').join('-'),
+
             }
         })
         console.log(payloads, 'payloads >>>>>>>>>>>>')
@@ -165,6 +172,7 @@ class CertificateController {
                                                       throw(err)
                                                     }
                                                   })
+                                                  Recipient.update({status: 'sent'}, {where: {id: payload.recipientId}})
                                                   if(index === payloads.length - 1){
                                                       res.status(200).json({message: 'success'})
                                                   }
