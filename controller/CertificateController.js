@@ -1,4 +1,5 @@
 const { Organizer, Event, Recipient } = require('../models')
+const http = require('http')
 const PizZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
 const path = require('path')
@@ -7,6 +8,7 @@ const assert = require('assert')
 const QRCode = require('qrcode')
 const nodemailer = require('nodemailer')
 let filepath = ''
+let isLinkTemplate = false
 const CloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
 const { run } = require('../helpers/pdflib');
 class CertificateController {
@@ -14,7 +16,23 @@ class CertificateController {
         try{
         const eventId = +req.params.eventId
         const templateNumber = +req.params.templateNumber
-        filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
+        const responseEvent = await Event.findOne({where: {id: eventId}})
+        if(responseEvent.templatePath) {
+          const file = fs.createWriteStream("tamplateLink.pptx")
+          http.get(responseEvent.templatePath, response => {
+            response.pipe(file)
+          })
+          console.log(file, 'masuk ada file soalnya <<<<<<')
+          // filepath = responseEvent.templatePath
+          // isLinkTemplate = true
+          // console.log(filepath)
+          // fs.readFile(responseEvent.templatePath, (err) => {
+
+          // })
+        } else {
+          filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
+          isLinkTemplate = false
+        }
         // console.log(`../storage/templates/ppt-text${templateNumber}.pptx`, '  file template numbbbberrrrrrrrrrr<<<<<<<<<<<<<<<<<<<<<<<')
         const organizerId = +req.organizer.id
         const defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
@@ -88,8 +106,10 @@ class CertificateController {
                 //     throw error;
                 // }
                 ///////////////////ERROR HANDLER FROM DOCXTEMPLATER
-        
+                
+                // const content = fs.readFileSync(filepath, 'binary');
                 const content = fs.readFileSync(path.resolve(__dirname, filepath), 'binary');
+                console.log(content, '<<<<<< ini contentnya')
                 const zip = new PizZip(content);
                 let doc;
                 // try {
@@ -197,6 +217,7 @@ class CertificateController {
             }
         })
         } catch (error){
+            console.log(error)
             next(error)
         }
         
