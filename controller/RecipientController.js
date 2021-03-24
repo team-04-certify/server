@@ -15,7 +15,8 @@ class RecipientController {
           birthDate: recipient.birthDate,
           certificateNumber: recipient.certificateNumber,
           role: recipient.role,
-          EventId: eventId
+          EventId: eventId,
+          status: "not yet send"
         }
       })
       console.log(recipientsFromCSV)
@@ -36,7 +37,9 @@ class RecipientController {
           certificateNumber: recipient.certificateNumber, 
           certificateLink: `https://firebase/validate/${recipient.id}`, 
           role: recipient.role, 
-          EventId: recipient.EventId}
+          EventId: recipient.EventId,
+          status: recipient.status
+        }
         }) 
       const updatedRecipients = await Recipient.bulkCreate(temp, {updateOnDuplicate: ['certificateLink']})
       res.status(201).json(updatedRecipients)

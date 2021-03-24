@@ -68,6 +68,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
       EventId: DataTypes.INTEGER,
+      status: DataTypes.STRING
     },
     {
       sequelize,
