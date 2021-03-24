@@ -1,15 +1,19 @@
+const { Event } = require('../models')
+
 class UploadFileController {
-  static uploadBanner(req, res) {
+  static async uploadBanner(req, res) {
     const url = req.body.file
-    const eventId = req.params.eventId
+    const eventId = +req.params.eventId
     console.log('Upload berhasil', url, eventId)
+    await Event.update({banner: url}, { where: {id: eventId}})
     res.status(201).json({Success: 'Success upload!'})
   }
 
-  static uploadTemplate(req, res) {
+  static async uploadTemplate(req, res) {
     const url = req.body.file
     const eventId = req.params.eventId
     console.log('Upload berhasil', url, eventId)
+    await Event.update({templatePath: url}, { where: {id: eventId}})
     res.status(201).json({Success: 'Success upload!'})
   }
 }

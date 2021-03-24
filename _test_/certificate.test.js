@@ -19,7 +19,7 @@ describe("Success test cases CRUD recipient", function () {
     organizerId = +organizerBf.id;
     jwtToken = jwt.sign({id: organizerId, name: organizerForm.name, email: organizerForm.email}, process.env.SECRET_KEY);
     invalidJwtToken = jwt.sign({id: organizerId, name: "A CORP", email: "lala@mil.com", password: 'qwerty'}, process.env.SECRET_KEY)
-    // console.log(jwtToken, 'jwt token from test case >>>>>>>>>>>.')
+    console.log(jwtToken, 'jwt token from test case >>>>>>>>>>>.')
     const eventForm = {
       title: "Workshop Admins",
       date: "04/12/2021",
@@ -81,8 +81,8 @@ describe("Success test cases CRUD recipient", function () {
   describe("GET /certificates/:eventId/templateNumber error no recipient", function () {
 
     jest.setTimeout(70000)
-    // it("should return status 400 and a message when there is no recipients found", function (done) {
-    //   Recipient.destroy({ truncate: true })
+    // it("should return status 400 and a message when there is no recipients found", async function (done) {
+    //   await Recipient.update({ status: 'sent' })
     //   request(app)
     //     .get(`/certificates/${eventId}/1`)
     //     .set("access_token", jwtToken)
