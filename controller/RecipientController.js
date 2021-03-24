@@ -84,7 +84,6 @@ class RecipientController {
       const recipients = event.Recipients
       res.status(200).json(recipients)
     } catch (error) {
-      console.log(error, '<<<error')
       next(error)
     }
   }
