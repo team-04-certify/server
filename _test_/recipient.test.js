@@ -87,7 +87,7 @@ describe("Success test cases CRUD recipient", function () {
           expect(res.body[0].certificateNumber).toEqual(body[0].certificateNumber)
           expect(res.body[0].role).toEqual(body[0].role);
           expect(res.body[0].EventId).toEqual(eventId);
-          expect(res.body[0].status).toEqual("not yet send");
+          expect(res.body[0].status).toEqual("not yet sent");
           expect(res.body[0].certificateLink).toEqual(`https://firebase/validate/${res.body[0].id}`);
           return done();
         });
