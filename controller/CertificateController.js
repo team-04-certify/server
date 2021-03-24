@@ -32,7 +32,7 @@ class CertificateController {
                 where: { id: eventId },
                 include: [{
                     model: Recipient,
-                    // where: {status: "not yet sent"}
+                    where: {status: "not yet sent"}
                 }]
             }]
         })
