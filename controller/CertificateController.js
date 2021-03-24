@@ -27,8 +27,6 @@ class CertificateController {
         const eventId = +req.params.eventId
         const templateNumber = +req.params.templateNumber
         const responseEvent = await Event.findOne({where: {id: eventId}})
-        
-        // console.log(`../storage/templates/ppt-text${templateNumber}.pptx`, '  file template numbbbberrrrrrrrrrr<<<<<<<<<<<<<<<<<<<<<<<')
         const organizerId = +req.organizer.id
         const defaultClient = CloudmersiveConvertApiClient.ApiClient.instance;
         const Apikey = defaultClient.authentications['Apikey'];
@@ -49,36 +47,19 @@ class CertificateController {
                 }]
             }]
         })
-        console.log(organizer, 'CHECK Organizer query result >>>>>>>>>>');
-        const recipients = organizer.Events[0].Recipients
-        if(organizer.Events[0].templatePath) {
-          // setTimeout(() => {
-            
-          // }, 2000);
-          // console.log(organizer.Events[0].templatePath, 'masuk if<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-          // const file =  fs.createWriteStream(`./storage/templates/templateLink.pptx`)
-          // https.get(organizer.Events[0].templatePath, response => {
-          //   response.pipe(file)
-          // })
-          // console.log(file, 'masuk ada file soalnya <<<<<<')
-          request(organizer.Events[0].templatePath).pipe(fs.createWriteStream(`./storage/templates/templateLink.pptx`, 'utf8')) 
-          filepath = `../storage/templates/templateLink.pptx`
-          // fs.createWriteStream('./storage/templates/templateLink.pptx').pipe(request.put(organizer.Events[0].templatePath))
-          // filepath = 'file.pptx'
-          // isLinkTemplate = true
-          // console.log(filepath)
-          // fs.readFile(responseEvent.templatePath, (err) => {
-
-          // })
-        } else {
-          console.log('masuk else<<<<<<<<<<<<<<<<<<')
-          filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
-          isLinkTemplate = false
+        if(!organizer){
+            throw {name: 'CustomError', code: 400, message: 'at least one certificate recipient is required'}
         }
-        // if(recipients){
-        //     console.log(recipients, 'log recipients>>>>>>>>');
-        //     throw {name: 'CustomError', code: 400, message: 'at least one certificate recipient is required'}
+
+        const recipients = organizer.Events[0].Recipients
+        // if(organizer.Events[0].templatePath) {
+        //   request(organizer.Events[0].templatePath).pipe(fs.createWriteStream(`./storage/templates/templateLink.pptx`, 'utf8')) 
+        //   filepath = `../storage/templates/templateLink.pptx`
+        // } else {
+        //     isLinkTemplate = false
         // }
+        filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
+        
         let payloads = recipients.map(recipient => {
             
             return {
@@ -96,56 +77,19 @@ class CertificateController {
 
             }
         })
-        console.log(payloads, 'payloads >>>>>>>>>>>>')
-
         payloads.forEach(async (payload, index, payloads) => {
             try{
-
                 await QRCode.toFile(`./storage/qrcodes/${payload.namedFolder}.png`, payload.certificateLink)
                 console.log('QR code was generated')
-                ///////////////////ERROR HANDLER FROM DOCXTEMPLATER
-                // function replaceErrors(key, value) {
-                //     if (value instanceof Error) {
-                //         return Object.getOwnPropertyNames(value).reduce(function (error, key) {
-                //             error[key] = value[key];
-                //             return error;
-                //         }, {});
-                //     }
-                //     return value;
-                // }
-        
-                // function errorHandler(error) {
-                //     console.log(JSON.stringify({ error: error }, replaceErrors));
-                //     if (error.properties && error.properties.errors instanceof Array) {
-                //         const errorMessages = error.properties.errors.map(function (error) {
-                //             return error.properties.explanation;
-                //         }).join("\n");
-                //         console.log('errorMessages', errorMessages);
-                //     }
-                //     throw error;
-                // }
-                ///////////////////ERROR HANDLER FROM DOCXTEMPLATER
-                
-                // const content = fs.readFileSync(filepath, 'binary');
-                console.log(filepath, 'ini filepath sebelum di baca di lin 116 <<<<<<<<<<<<<')
                 const content = fs.readFileSync(path.resolve(__dirname, filepath), 'binary');
                 console.log(content, '<<<<<< ini contentnya')
                 const zip = new PizZip(content);
                 let doc;
-                // try {
-                //     doc = new Docxtemplater(zip);
-                // } catch (error) {
-                //     errorHandler(error);
-                // }
+                
                 doc = await new Docxtemplater(zip)
                 await doc.setData(payload);
                 await doc.render()
-                // try {
-                //     doc.render()
-                // }
-                // catch (error) {
-                //     errorHandler(error);
-                // }
+                
         
                 const filename = `${payload.namedFolder}`
                 const buf = doc.getZip().generate({ type: 'nodebuffer' });

@@ -1,6 +1,5 @@
 module.exports = (err, req, res, next) => {
   let errors = null
-  console.log(err, '=====drerrhandler')
   switch(err.name){
     case 'CustomError':
       res.status(err.code).json(err)
