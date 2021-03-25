@@ -34,7 +34,7 @@ class CertificateController {
         const Apikey = defaultClient.authentications['Apikey'];
         // Apikey.apiKey = 'c7d7af25-2841-440a-97a2-7eea43454226'; // punya Rizky HABIS
         // Apikey.apiKey = 'a04c172a-dcd9-463e-b4fd-53158f19f8a4'; // punya Robi
-
+        let testWrite;
         Apikey.apiKey = '5c227385-6b3d-477b-a9ee-db4622a5bf1a';
         const organizer = await Organizer.findOne({
             where: {
@@ -49,38 +49,25 @@ class CertificateController {
                 }]
             }]
         })
-        console.log(organizer, 'CHECK Organizer query result >>>>>>>>>>');
+        if(!organizer){
+            console.log(recipients, 'log recipients>>>>>>>>');
+            throw {name: 'CustomError', code: 400, message: 'at least one certificate recipient is required'}
+        }
         const recipients = organizer.Events[0].Recipients
         if(organizer.Events[0].templatePath) {
-          // setTimeout(() => {
-            
-          // }, 2000);
-          // console.log(organizer.Events[0].templatePath, 'masuk if<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-          // const file =  fs.createWriteStream(`./storage/templates/templateLink.pptx`)
-          // https.get(organizer.Events[0].templatePath, response => {
-          //   response.pipe(file)
-          // })
-          // console.log(file, 'masuk ada file soalnya <<<<<<')
-          request(organizer.Events[0].templatePath).pipe(fs.createWriteStream(`./storage/templates/templateLink.pptx`, 'utf8')) 
-          filepath = `../storage/templates/templateLink.pptx`
+            filepath = `../storage/templates/ppt-text${templateNumber}-template.pptx`
+            request(organizer.Events[0].templatePath).pipe(testWrite = fs.createWriteStream(`./storage/templates/ppt-text${templateNumber}-template.pptx`, 'utf8'))
           // fs.createWriteStream('./storage/templates/templateLink.pptx').pipe(request.put(organizer.Events[0].templatePath))
           // filepath = 'file.pptx'
           // isLinkTemplate = true
           // console.log(filepath)
           // fs.readFile(responseEvent.templatePath, (err) => {
-
           // })
         } else {
-          console.log('masuk else<<<<<<<<<<<<<<<<<<')
-          filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
-          isLinkTemplate = false
+            filepath = `../storage/templates/ppt-text${templateNumber}.pptx`
+            isLinkTemplate = false
         }
-        // if(recipients){
-        //     console.log(recipients, 'log recipients>>>>>>>>');
-        //     throw {name: 'CustomError', code: 400, message: 'at least one certificate recipient is required'}
-        // }
         let payloads = recipients.map(recipient => {
-            
             return {
                 organizerName: organizer.name,
                 eventTitle: organizer.Events[0].title,
@@ -93,67 +80,38 @@ class CertificateController {
                 certificateNumber: recipient.certificateNumber,
                 certificateLink: recipient.certificateLink,
                 namedFolder: recipient.name.split(' ').join('-'),
-
             }
         })
-        console.log(payloads, 'payloads >>>>>>>>>>>>')
 
         payloads.forEach(async (payload, index, payloads) => {
             try{
-
                 await QRCode.toFile(`./storage/qrcodes/${payload.namedFolder}.png`, payload.certificateLink)
                 console.log('QR code was generated')
-                ///////////////////ERROR HANDLER FROM DOCXTEMPLATER
-                // function replaceErrors(key, value) {
-                //     if (value instanceof Error) {
-                //         return Object.getOwnPropertyNames(value).reduce(function (error, key) {
-                //             error[key] = value[key];
-                //             return error;
-                //         }, {});
-                //     }
-                //     return value;
-                // }
-        
-                // function errorHandler(error) {
-                //     console.log(JSON.stringify({ error: error }, replaceErrors));
-                //     if (error.properties && error.properties.errors instanceof Array) {
-                //         const errorMessages = error.properties.errors.map(function (error) {
-                //             return error.properties.explanation;
-                //         }).join("\n");
-                //         console.log('errorMessages', errorMessages);
-                //     }
-                //     throw error;
-                // }
-                ///////////////////ERROR HANDLER FROM DOCXTEMPLATER
-                
-                // const content = fs.readFileSync(filepath, 'binary');
-                console.log(filepath, 'ini filepath sebelum di baca di lin 116 <<<<<<<<<<<<<')
-                const content = fs.readFileSync(path.resolve(__dirname, filepath), 'binary');
-                console.log(content, '<<<<<< ini contentnya')
-                const zip = new PizZip(content);
-                let doc;
-                // try {
-                //     doc = new Docxtemplater(zip);
-                // } catch (error) {
-                //     errorHandler(error);
-                // }
-                doc = await new Docxtemplater(zip)
-                await doc.setData(payload);
-                await doc.render()
-                // try {
-                //     doc.render()
-                // }
-                // catch (error) {
-                //     errorHandler(error);
-                // }
-        
-                const filename = `${payload.namedFolder}`
-                const buf = doc.getZip().generate({ type: 'nodebuffer' });
-                fs.writeFileSync(path.resolve(__dirname, `../storage/inputs/${filename}.pptx`), buf);
-                console.log('input pptx created >>>>>>>>>>>>');
+                if(organizer.Events[0].templatePath) {
+                    testWrite.on('finish', async () => {
+                        const content = fs.readFileSync('./ppt-text.pptx', 'binary');
+                        const zip = new pizzip(content);
+                        doc = await new Docxtemplater(zip)
+                        await doc.setData(payload);
+                        await doc.render()
+                        fs.writeFileSync(path.resolve(__dirname, `../storage/inputs/${filename}.pptx`), buf);
+                        // ++++++++++++++++++++++++++++++++++++++++++++++++++++
+                        
+                        // ++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    })
+                } else {
+                    const content = fs.readFileSync(path.resolve(__dirname, filepath), 'binary');
+                    const zip = new PizZip(content);
+                    let doc;
+                    doc = await new Docxtemplater(zip)
+                    await doc.setData(payload);
+                    await doc.render()
+                    const filename = `${payload.namedFolder}`
+                    const buf = doc.getZip().generate({ type: 'nodebuffer' });
+                    fs.writeFileSync(path.resolve(__dirname, `../storage/inputs/${filename}.pptx`), buf);
+                }
                 //////////////////////CONVERT PPT TO PDF ////////////////////////////////
                 const apiInstance = new CloudmersiveConvertApiClient.ConvertDocumentApi();
-        
                 const inputFile = Buffer.from(fs.readFileSync(`./storage/inputs/${payload.namedFolder}.pptx`).buffer); // File | Input file to perform the operation on.
                 const callback = function (error, data, response) {
                     if (error) {
@@ -173,66 +131,63 @@ class CertificateController {
                                 assert.notStrictEqual(pathToImage, null, ERRORS.ARGUMENTS)
                     
                                 run(pathToPDF, pathToImage, `./storage/inputs/${payload.namedFolder}.pptx`)
-                                //  
                                 .then (_ => {
-                                  fs.readFile(`./storage/results/${payload.namedFolder}-result.pdf`, (err, data) => {
-                                      if (err) {
-                                          throw {err}
-                                      } else {
-                                          console.log('result pdf is saved')
-                                          let transporter = nodemailer.createTransport({
-                                              service: "gmail",
-                                              auth: {
-                                                  user: "certify.sendmail@gmail.com",
-                                                  pass: "certify123",
-                                              },
-                                          });
-                      
-                                          const mailOptions = {
-                                              from: "sender@email.com", // sender address
-                                              to: `${payload.email}`,
-                                              subject: "Subject of your email", // Subject line
-                                              // html: "<p>Your html here</p>", // plain text body
-                                              html: htmlTemplate(
+                                    fs.readFile(`./storage/results/${payload.namedFolder}-result.pdf`, (err, data) => {
+                                        if (err) {
+                                            throw {err}
+                                        } else {
+                                            console.log('result pdf is saved')
+                                            let transporter = nodemailer.createTransport({
+                                                service: "gmail",
+                                                auth: {
+                                                    user: "certify.sendmail@gmail.com",
+                                                    pass: "certify123",
+                                                },
+                                            });
+                        
+                                            const mailOptions = {
+                                                from: "sender@email.com", // sender address
+                                                to: `${payload.email}`,
+                                                subject: "Subject of your email", // Subject line
+                                                // html: "<p>Your html here</p>", // plain text body
+                                                html: htmlTemplate(
                                                 top,
                                                 bottom,
                                                 payload.eventTitle,
                                                 payload.certificateLink,
                                                 logo
-                                              ), // plain text body
-                                              attachments: [
-                                                  {
-                                                      filename: `${payload.namedFolder}-result.pdf`,
-                                                      path: `./storage/results/${payload.namedFolder}-result.pdf`,
-                                                  },
-                                              ],
-                                          };
-                                          console.log('set up mail options done')
-                      
-                                          transporter.sendMail(mailOptions, function (err, info) {
-                                              if (err) {
-                                                  throw {err}
-                                              }
-                                              else {
-                                                  fs.unlink(`./storage/results/${payload.namedFolder}-result.pdf`, (err) => {
+                                                ), // plain text body
+                                                attachments: [
+                                                    {
+                                                        filename: `${payload.namedFolder}-result.pdf`,
+                                                        path: `./storage/results/${payload.namedFolder}-result.pdf`,
+                                                    },
+                                                ],
+                                            };
+                                            console.log('set up mail options done')
+                        
+                                            transporter.sendMail(mailOptions, function (err, info) {
+                                                if (err) {
+                                                    throw {err}
+                                                }
+                                                else {
+                                                    fs.unlink(`./storage/results/${payload.namedFolder}-result.pdf`, (err) => {
                                                     if(err) {
-                                                      throw(err)
+                                                        throw(err)
                                                     }
-                                                  })
-                                                  Recipient.update({status: 'sent'}, {where: {id: payload.recipientId}})
-                                                  if(index === payloads.length - 1){
-                                                      res.status(200).json({message: 'success'})
-                                                  }
-                                              }
-                                          });
-                                      }
-                                  })
-
+                                                    })
+                                                    Recipient.update({status: 'sent'}, {where: {id: payload.recipientId}})
+                                                    if(index === payloads.length - 1){
+                                                        res.status(200).json({message: 'success'})
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    })
                                 })
                                 .catch(err => {
-                                  throw(err)
+                                    throw(err)
                                 })
-    
                             }
                         });
                     }
