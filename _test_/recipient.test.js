@@ -331,34 +331,6 @@ describe("Failed test cases CRUD participant", function () {
         });
     });
 
-    // it("should return status 400 when required fields is empty", function (done) {
-    //   const body = {
-    //     recipients: [
-    //       {data: ["name", "email", "birthdate", "certificateNumber", "role"]},
-    //       {data: ["John Doe", "johndoe@mail.com", "03/04/1993", "ads2sd334", "attendee"]}
-    //     ]
-    //   }
-    //   request(app)
-    //     .post(`/recipients/${eventId}`)
-    //     .set("access_token", jwtToken)
-    //     .send(body)
-    //     .end((err, res) => {
-    //       if (err) return done(err);
-    //       expect(res.status).toEqual(400);
-    //       expect(res.body).toEqual({
-    //         errorName: "SequelizeValidationError",
-    //         errorCode: 400,
-    //         errorMessages: [
-    //           "Participant's Name is required",
-    //           "Participant's Email is required",
-    //           "Participant's Gender is required",
-    //           "Participant's Birthdate is required",
-    //           "Participant's Role is required",
-    //         ],
-    //       });
-    //       return done();
-    //     });
-    // });
   });
   describe("GET /recipients/all/:eventId", function () {
     it("should return status 401 when jwt is not provided", function (done) {
@@ -388,31 +360,6 @@ describe("Failed test cases CRUD participant", function () {
     });
   });
   describe("GET /recipients/:recipientId", function () {
-        //   it("should return status 401 when jwt is not provided", function (done) {
-        //     request(app)
-        //       .get(`/recipients/${recipientId}`)
-        //       .end((err, res) => {
-        //         if (err) return done(err);
-        //         expect(res.status).toEqual(401);
-        //         expect(res.body).toEqual({"message": "jwt is required"});
-        //         return done();
-        //       });
-        //   });
-          
-        //   it("should return status 401 when access_token is invalid", function (done) {
-        //     request(app)
-        //       .get(`/recipients/${recipientId}`)
-        //       .set('access_token', 'errortesttoken')
-        //       .end((err, res) => {
-        //         if (err) return done(err);
-        //         expect(res.status).toEqual(401);
-        //         expect(res.body).toEqual({
-        //           name: "JsonWebTokenError",
-        //           message: "jwt malformed",
-        //         });
-        //         return done();
-        //       });
-        //   });
     it("should return status 404 when recipient is not found", function (done) {
       request(app)
         .get(`/recipients/1000`)
@@ -501,38 +448,6 @@ describe("Failed test cases CRUD participant", function () {
         });
     });
   
-
-//     it("should return status 400 when required fields is empty", function (done) {
-//       const body = {
-//         name: "",
-//         email: "",
-//         gender: "",
-//         birthdate: "",
-//         certificateNumber: "",
-//         role: "",
-//         EventId: EventId,
-//       };
-//       request(app)
-//         .post(`participant/:${organizerId}/:${eventId}`)
-//         .set("access_token", jwtToken)
-//         .send(body)
-//         .end((err, res) => {
-//           if (err) return done(err);
-//           expect(res.status).toEqual(400);
-//           expect(res.body).toEqual({
-//             errorName: "SequelizeValidationError",
-//             errorCode: 400,
-//             errorMessages: [
-//               "Participant's Name is required",
-//               "Participant's Email is required",
-//               "Participant's Gender is required",
-//               "Participant's Birthdate is required",
-//               "Participant's Role is required",
-//             ],
-//           });
-//           return done();
-//         });
-//     });
   });
 
   describe("DELETE /participant/:participantId", function () {

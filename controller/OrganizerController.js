@@ -21,7 +21,6 @@ class OrganizerController {
       .catch(err  => {
         next(err)
       })
-    // res.send('masuk regiter')
   }
   static login (req, res, next) {
     console.log('masuk login<<<<<<')
