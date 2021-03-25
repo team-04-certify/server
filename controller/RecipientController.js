@@ -27,7 +27,7 @@ class RecipientController {
           email: recipient.email,
           birthDate: recipient.birthDate,
           certificateNumber: recipient.certificateNumber,
-          certificateLink: `https://firebase/certificate/${recipient.id}`,
+          certificateLink: `https://certify.helsinki-fox.tech/certificate/${recipient.id}`,
           role: recipient.role,
           EventId: recipient.EventId,
           status: recipient.status
