@@ -80,28 +80,6 @@ describe("POST /events/:organizerId", function () {
       });
   });
 
-  // it("should return status 400 with message (error empty)", function (done) {
-  //   let body = {
-  //     event: null,
-  //     date: "07/14/2021",
-  //     type: null,
-  //     organizerId: 1,
-  //   };
-  //   console.log(body, 'ini bodinya <<<<<<<<<')
-  //   request(app)
-  //     .post(`/events/1`)
-  //     .send(body)
-  //     .set("access_token", access_token)
-  //     .end((err, res) => {
-  //       if (err) {
-  //         done(err);
-  //       }
-  //       expect(res.status).toEqual(400);
-  //       expect(Array.isArray(res.body)).toEqual(true);
-  //       expect(res.body[0]).toHaveProperty("message");
-  //       done();
-  //     });
-  // });
 
   it("should return status 400 with message (error no acces token)", function (done) {
     let body = {
@@ -197,27 +175,6 @@ describe("PUT /events/:eventId", () => {
       });
   });
 
-  // it("should return status 400 with error message", function (done) {
-  //   let body = {
-  //     event: "",
-  //     date: "",
-  //     type: "Seminar",
-  //     organizerId: 1,
-  //   };
-
-  //   request(app)
-  //     .put("/events/1")
-  //     .send(body)
-  //     .set("access_token", tokenUser)
-  //     .end((err, res) => {
-  //       if (err) {
-  //         done(err);
-  //       }
-  //       expect(res.status).toEqual(400);
-  //       expect(res.body).toHaveProperty("message");
-  //       done();
-  //     });
-  // });
 
   it("should return status 401 with message (error no acces token)", function (done) {
     let body = {

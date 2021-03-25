@@ -1,7 +1,6 @@
 const RecipientRouter = require("express").Router();
 const RecipientController = require("../controller/RecipientController");
 const authentication = require('../middlewares/authentication')
-// RecipientRouter.use(authentication)
 
 RecipientRouter.get("/recipients/all/:eventId",authentication, RecipientController.getRecipients)
 RecipientRouter.post("/recipients/:eventId",authentication, RecipientController.addRecipients)

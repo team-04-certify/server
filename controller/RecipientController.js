@@ -19,14 +19,6 @@ class RecipientController {
           status: "not yet sent"
         }
       })
-      console.log(recipientsFromCSV)
-      // let recipientsWithEventId = []
-      // recipientsFromCSV.forEach((recipient, index) => {
-      //   if(index !== 0){
-      //     recipientsWithEventId.push({name: recipient.data[0], email:recipient.data[1], birthDate:recipient.data[2], certificateNumber:recipient.data[3], role:recipient.data[4], EventId: eventId})
-
-      //   }
-      // })
       const recipients = await Recipient.bulkCreate(recipientsFromCSV, { attributes: ['id'] })
       let temp = recipients.map(recipient => {
         return {
@@ -35,7 +27,7 @@ class RecipientController {
           email: recipient.email,
           birthDate: recipient.birthDate,
           certificateNumber: recipient.certificateNumber,
-          certificateLink: `https://firebase/validate/${recipient.id}`,
+          certificateLink: `https://firebase/certificate/${recipient.id}`,
           role: recipient.role,
           EventId: recipient.EventId,
           status: recipient.status
